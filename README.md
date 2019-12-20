@@ -13,7 +13,7 @@ Terraform script has been developed to build this infrastructure. Following reso
 
 Ranger DB\
 Ranger Admin Instances\
-Application Load Balancer\
+Load Balancer\
 Solr Instance
 
 Note: UserSyncis not part of this terraform script as of now.
