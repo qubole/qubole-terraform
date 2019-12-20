@@ -1,4 +1,4 @@
-#Build Ranger Infrastructure with Terraform
+# Build Ranger Infrastructure with Terraform
 Terraform is an infrastructure as code software by HashiCorp. It is a server provisioning tool. It provisions and manages infrastructure across multiple providers such as AWS, GCP,Azure and OCI. Infrastructure is defined in a HCL Terraform syntax or JSON format.
 
 Terraform can be downloaded from here.
@@ -7,7 +7,7 @@ Used version : Terraform v0.11.10 or https://www.terraform.io/downloads.html
 
 Below is the architectural diagram of the ranger infrastructure.
 
-
+![Ranger Architecture](https://github.com/qubole/qubole-terraform/blob/master/ranger/images/ranger_architecture.png)
 
 Terraform script has been developed to build this infrastructure. Following resources will be provisioned.
 
