@@ -35,8 +35,8 @@ terraform.tfvars: This is the file where user can pass the desired values for al
 				values from any file named terraform.tfvars or ending in .auto.tfvars.
 ranger_install.tpl: This template file has all the steps to install ranger admin in ec2 instance.
 solr_install.tpl: This template file has all the steps to install solr.
+
 How to run terraform commands:
-cd ranger
 
 terraform init
 
