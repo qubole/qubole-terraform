@@ -14,7 +14,8 @@ Terraform script has been developed to build this infrastructure. Following reso
 Ranger DB\
 Ranger Admin Instances\
 Application Load Balancer\
-Solr Instance\ 
+Solr Instance
+
 Note: UserSyncis not part of this terraform script as of now.
 
 # Pre-requisites for AWS: #
@@ -25,7 +26,8 @@ Create two private subnets in different Availability Zones to be used for RDS (d
 # Pre-requisites for GCP: #
 Create a service account.\
 Download service account key in a JSON file.\
-Create a VPC network and subnet.\
+Create a VPC network and subnet.
+
 Most of the resource properties are parameterized. User has to change only terraform.tfvars as per the requirement.
 
 providers.tf: In terraform, providers are interfaces to the services that maintain our resources.This file has details about AWS/GCP provider.\
