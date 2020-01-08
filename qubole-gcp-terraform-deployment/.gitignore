@@ -1,0 +1,9 @@
+*.tfstate
+*.tfstate.backup
+*.tfstate.lock.info
+qubole-deployment/google_credentials/*.json
+.terraform
+.terraform/*
+.idea
+.idea/*
+.DS_Store
