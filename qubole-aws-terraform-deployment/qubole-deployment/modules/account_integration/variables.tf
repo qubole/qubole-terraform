@@ -6,13 +6,13 @@ variable "qubole-aws-account-id" {
 }
 
 variable "qubole-external-id" {
-  default = "GI3DEMLIMRUWCZLC"
+
 }
 
 variable "data_lake_project_region" {
-  default = "ap-southeast-1"
+
 }
 
 variable "qubole-defloc-name" {
-  default = "vihagg-tf-defloc"
+
 }

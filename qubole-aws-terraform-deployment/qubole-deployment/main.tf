@@ -15,6 +15,9 @@ resource "aws_key_pair" "terraform_deployer_key_pair" {
 module "account_integration" {
   source = "./modules/account_integration"
   deployment_suffix = random_id.deployment_suffix.hex
+  data_lake_project_region = "<choose your own>"
+  qubole-defloc-name = "<choose your own>"
+  qubole-external-id = "<get from your account>"
 }
 
 module "network_infrastructure" {
@@ -22,6 +25,9 @@ module "network_infrastructure" {
   deployment_suffix = random_id.deployment_suffix.hex
   #Required for the metastore to be able to perform a remote execution of Hive Metastore Initialization
   terraform_deployer_key_name = aws_key_pair.terraform_deployer_key_pair.key_name
+  data_lake_project_region = "<choose your own>"
+  public_ssh_key = "<get from your account>"
+  qubole_public_key = "<get from your account>"
 }
 
 

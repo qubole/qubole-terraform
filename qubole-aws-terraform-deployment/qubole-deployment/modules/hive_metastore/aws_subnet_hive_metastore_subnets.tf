@@ -6,13 +6,13 @@ Creates two subnets in the Hive Metastore Dedicated VPC.
 */
 
 resource "aws_subnet" "hive_metastore_subnet_primary" {
-  cidr_block = "11.0.1.0/24"
+  cidr_block = var.hive_metastore_vpc_primary_subnet_cidr
   vpc_id = aws_vpc.hive_metastore_dedicated_vpc.id
   availability_zone = var.db_primary_zone
 }
 
 resource "aws_subnet" "hive_metastore_subnet_secondary" {
-  cidr_block = "11.0.2.0/24"
+  cidr_block = var.hive_metastore_vpc_secondary_subnet_cidr
   vpc_id = aws_vpc.hive_metastore_dedicated_vpc.id
   availability_zone = var.db_secondary_zone
 }

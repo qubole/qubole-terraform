@@ -29,8 +29,19 @@ variable "hive_db_name" {
   default = "hive"
 }
 
+variable "hive_metastore_vpc_cidr" {
+  default = "11.0.0.0/16"
+}
+
+variable "hive_metastore_vpc_primary_subnet_cidr" {
+  default = "11.0.1.0/24"
+}
+
+variable "hive_metastore_vpc_secondary_subnet_cidr" {
+  default = "11.0.2.0/24"
+}
+
 variable "qubole_dedicated_vpc" {
-  default = "/projects/qubole-on-gcp/networks/qubole-dedicated-vpc"
 }
 
 variable "qubole_bastion_private_ip" {

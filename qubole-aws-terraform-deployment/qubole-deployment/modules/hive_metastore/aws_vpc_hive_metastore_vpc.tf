@@ -7,7 +7,7 @@ Creates the Hive Metastore Dedicated VPC.
 */
 
 resource "aws_vpc" "hive_metastore_dedicated_vpc" {
-  cidr_block = "11.0.0.0/16"
+  cidr_block = var.hive_metastore_vpc_cidr
   enable_dns_support = true
 
   tags = {
