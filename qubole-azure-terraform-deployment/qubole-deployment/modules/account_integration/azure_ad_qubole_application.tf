@@ -12,7 +12,7 @@ resource "random_password" "password_for_client" {
   special = true
 }
 
-resource "azuread_application_password" "client_secret_password" {
+resource "azuread_application_password" "application_password" {
   application_object_id = azuread_application.qubole_azure_ad_application.id
   value = random_password.password_for_client.result
   end_date = timeadd(timestamp(), "8760h")
@@ -26,7 +26,7 @@ resource "azuread_service_principal" "qubole_azure_ad_application_svc_principal"
 
 }
 
-resource "azuread_service_principal_password" "qubole_azure_ad_application_svc_principal_password" {
+resource "azuread_service_principal_password" "service_principal_password" {
   service_principal_id = azuread_service_principal.qubole_azure_ad_application_svc_principal.id
   value = random_password.password_for_client.result
   end_date = timeadd(timestamp(), "8760h")
@@ -40,14 +40,10 @@ output "qubole_azure_ad_directory_id" {
   value = var.directory_tenant_id
 }
 
-output "qubole_azure_ad_directory_client_secret" {
-  value = random_password.password_for_client.result
+output "application_password" {
+  value = azuread_application_password.application_password
 }
 
-output "qubole_azure_ad_directory_client_secret_password" {
-  value = azuread_application_password.client_secret_password
-}
-
-output "azuread_service_principal_password" {
-  value = azuread_service_principal_password.qubole_azure_ad_application_svc_principal_password
+output "service_principal_password" {
+  value = azuread_service_principal_password.service_principal_password
 }
