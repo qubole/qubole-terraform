@@ -25,6 +25,7 @@ resource "azurerm_virtual_machine" "qubole_bastion_host" {
     sku = "16.04-LTS"
     version = "latest"
   }
+
   storage_os_disk {
     name = "os_disk"
     caching = "ReadWrite"

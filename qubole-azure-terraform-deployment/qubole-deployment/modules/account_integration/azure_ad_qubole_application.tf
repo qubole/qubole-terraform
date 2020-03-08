@@ -10,6 +10,7 @@ resource "azuread_application" "qubole_azure_ad_application" {
 resource "random_password" "password_for_client" {
   length = 33
   special = true
+  override_special = "_%@"
 }
 
 resource "azuread_application_password" "application_password" {

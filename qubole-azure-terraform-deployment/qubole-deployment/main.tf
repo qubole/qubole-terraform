@@ -4,7 +4,7 @@ data "azurerm_subscription" "current" {
 provider "azurerm" {
   # whilst the `version` attribute is optional, we recommend pinning to a given version of the Provider
   version = "=2.0.0"
-  subscription_id = ""
+  subscription_id = "your-subscription-id-here"
   features {}
 }
 
@@ -26,8 +26,8 @@ module "network_infrastructure" {
   qubole_resource_group_location = module.account_integration.qubole_resource_group_location
   qubole_resource_group_name = module.account_integration.qubole_resource_group_name
   bastion_vm_size = "Standard_DS1_v2"
-  public_ssh_key = ""
-  qubole_public_key = ""
+  public_ssh_key = "your-account-specific-ssh-key-here"
+  qubole_public_key = "qubole-public-key-here"
 }
 
 output "qubole_compute_client_id" {
