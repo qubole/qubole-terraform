@@ -41,7 +41,7 @@
 
 <h2>How does the integration look like?</h2>
 <p>
-    <img src="./readme_files/qubole_azure_integration.png" title="Qubole Azure Integration Reference Architecture">
+    <img src="./readme_files/qubole_azure_integration_diagram.png" title="Qubole Azure Integration Reference Architecture">
 </p>
 
 <h2>How to use the project?</h2>
