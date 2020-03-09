@@ -50,6 +50,18 @@
     The main.tf can be customized to cherry pick which modules to deploy.
 </p>
 
+<p>
+    Pre-requisites:
+        * Azure Subscription ID to use
+            * In the main.tf, you can specify the subscription id to use for this setup.
+            * This can be important if you have multiple subscriptions going on
+        * Account Level SSH Key
+            * See https://docs.qubole.com/en/latest/admin-guide/cluster-admin/private-subnet.html#configuring-a-private-subnet-for-azure-clusters
+            * Use https://docs.qubole.com/en/latest/rest-api/account_api/account-SSH-key.html to get this unique SSH Key
+        * Qubole Default Public Key
+            * See Step 3a at https://docs.qubole.com/en/latest/admin-guide/cluster-admin/private-subnet.html#configuring-a-private-subnet-for-azure-clusters
+/p>
+
     There are 2 modules
     1. The account_integration module
         i. Setup an Azure Active Directory Application
