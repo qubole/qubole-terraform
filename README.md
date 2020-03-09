@@ -5,5 +5,5 @@ Terraform can be downloaded from here.
 https://www.terraform.io/downloads.html
 
 Terraform scripts have been developed for multiple purposes.
-1) QDS deployment on AWS/Azure/GCP
+1) QDS deployment on AWS/GCP
 2) Ranger deployment on AWS/GCP
