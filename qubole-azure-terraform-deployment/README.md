@@ -17,43 +17,31 @@
 
 <h2>What is the purpose of this project?</h2>
 <p>
-    When an organization or a customer wants to use Qubole on GCP, they need to integrate their GCP Project with Qubole. This includes
+    When an organization or a customer wants to use Qubole on Azure, they need to integrate their Azure Account with Qubole. This includes
     
-    * IAM permissions
-        * Compute
-        * Storage
-        * Big Query
+    * Azure Active Directory Application
+        * Resource Groups
+    * Storage Account(BlobStorage, ADLS)
     * Dedicated networking components
-        * VPC Network
-        * Subnetworks
-        * Firewall Rules
-        * NAT Gateways
+        * VNET
+        * Subnets
+        * Network Security Groups   
     * Hive Metastore
     
     That said, The purpose of this project is two-fold
     Using the DRY principle promoted by Terraform, create re-usable, customizable Terraform modules that
-    1. Create IAM Roles, Service Accounts and Policies that 
-        i. Allow Qubole to Create Clusters and perform complete life cycle management
-        ii. Allow the clusters to write audit data, command logs/results/resources onto Google Cloud Storage
-        iii. Allow the clusters to read data from Big Query
+    1. Create Azure Active Directory Application 
+        i. Allow a Qubole Dedicate Resource Group to contribute to this
+        ii. Allow the clusters to write audit data, command logs/results/resources onto BlobStorage
     2. Create infrastructure dedicated for use by Qubole(hence isolating it from other resources)
-        i. A dedicated VPC network with a public and private subnet
+        i. A dedicated Virtual network with a public and private subnet
         ii. A bastion host for securing communications with Qubole
-        iii. A NAT Gateway to secure outbound communications in the private subnet
-        iv. Associated firewall rules to secure inter-component communications
-        
-    Additionally, the project also contains a module to spin up a Hive Metastore if the customer or organization does not already have one.
-    The module will do the following
-    1. Create a Cloud SQL Instance (MySQL Gen 2) with a database configured as the Hive Metastore
-    2. Create a GCE VM and run Cloud SQL Proxy on it, creating a proxy connection to the Cloud SQL instance
-    3. Establish Private IP connectivity between the Cloud SQL Proxy and the Cloud SQL Instance hosting the Hive Metastore
-    4. Peer the Cloud SQL VPC with the Qubole dedicated VPC for secure access
-    3. Additionally, the templates will whitelist the private subnet and bastion host to be able to access the Cloud SQL Proxy
+        iii. Associated network security group rules to secure inter-component communications
 </p>       
 
 <h2>How does the integration look like?</h2>
 <p>
-    <img src="./readme_files/qubole_gcp_integration_diagram.png" title="Qubole GCP Integration Reference Architecture">
+    <img src="./readme_files/qubole_azure_integration.png" title="Qubole Azure Integration Reference Architecture">
 </p>
 
 <h2>How to use the project?</h2>
@@ -62,35 +50,61 @@
     The main.tf can be customized to cherry pick which modules to deploy.
 </p>
 
-    There are 3 modules
-    1. The account_integration module
-        i. Setup a custom compute role with minimum compute permissions
-        ii. Setup a custom storage role with minimum storage permissions
-        iii. Setup a service account that will act as the Compute Service Account
-        iv. Setup a service account that will act as the Instance Service Account
-        v. Authorize the Qubole Service Account to be able to use the Compute Service Account
-        vi. Authorize the Compute Service Account to be able to use the Instance Service Account
-        vii. Authorize the Service Accounts to be able to read Big Query Datasets
-        viii. Create a Cloud Storage Bucket which will be the account's Default Location
-    2. The network_infrastructure module
-        i. Setup a VPC Network with a public and private subnet
-        ii. Setup a Bastion host in the public subnet and whitelist Qubole ingress to it
-        iii. Setup a Cloud NAT to allow clusters spun up in the private subnet access to the internet
-    3. The hive_metastore module
-        i. Setup a Cloud SQL Instance hosting the Hive Metastore, exposed via a Cloud SQL Proxy Service
-        ii. Peer the Cloud SQL Proxy VPC to the Qubole Dedicated VPC for secure access
-        iii. Whitelist Bastion ingress and private subnet ingress to the Cloud SQL Proxy Service
-        iv. Setup Private IP connection between the SQL proxy and the Cloud SQL instance for maximum security and performance
+<p>
+    Pre-requisites:
+    <ol>
+        <li>
+            Azure Subscription ID to use:
+            <ul>
+                <li>
+                    In the main.tf, you can specify the subscription id to use for this setup.
+                </li>
+                <li>
+                    This can be important if you have multiple subscriptions going on.
+                </li>
+            </ul>
+        </li>
+        <li>
+            Account Level SSH Key:
+            <ul>
+                <li>
+                    See https://docs.qubole.com/en/latest/admin-guide/cluster-admin/private-subnet.html#configuring-a-private-subnet-for-azure-clusters
+                </li>
+                <li>
+                    Use https://docs.qubole.com/en/latest/rest-api/account_api/account-SSH-key.html to get this unique SSH Key
+                </li>
+            </ul>
+        </li>
+        <li>
+            Qubole Default Public Key
+            <ul>
+                <li>
+                    See Step 3a at https://docs.qubole.com/en/latest/admin-guide/cluster-admin/private-subnet.html#configuring-a-private-subnet-for-azure-clusters
+                </li>
+            </ul>
+        </li>
+    </ol>
+</p>
 
+    There are 2 modules
+    1. The account_integration module
+        i. Setup an Azure Active Directory Application
+        ii. Setup a Qubole dedicated Resource Group
+        iii. Allow the application to Contribute to the Resource Group
+        iv. Setup a Storage Account, and a contrainer to serve as the account's default location
+    2. The network_infrastructure module
+        i. Setup a VNET with a public and private subnet
+        ii. Setup a Bastion host in the public subnet and whitelist Qubole ingress to it
+        iii. Initialize the Bastion with a SSH keys belonging to the account
+       
 
     Deploy the modules as follows
     1. Navigate to the qubole-deployment folder
     2. Edit the main.tf to choose which modules to deploy
-    3. Add the credentials file of the Service Account to be used by Terraform at ./google_credentials
-    4. Review the variables in each module and update as required
-    5. terraform init
-    6. terraform plan
-    7. terraform apply
+    3. Review the variables in each module and update as required
+    4. terraform init
+    5. terraform plan
+    6. terraform apply
 
 
 <p>That's all folks</p>

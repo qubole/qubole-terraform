@@ -25,7 +25,8 @@ module "network_infrastructure" {
   deployment_suffix = random_id.deployment_suffix.hex
   qubole_resource_group_location = module.account_integration.qubole_resource_group_location
   qubole_resource_group_name = module.account_integration.qubole_resource_group_name
-  bastion_vm_size = "Standard_DS1_v2"
+  #Bastion recommendation as per Qubole Docs: https://docs.qubole.com/en/latest/admin-guide/cluster-admin/private-subnet.html#configuring-a-private-subnet-for-azure-clusters
+  bastion_vm_size = "Standard_A4_v2"
   public_ssh_key = "your-account-specific-ssh-key-here"
   qubole_public_key = "qubole-public-key-here"
 }
