@@ -14,9 +14,9 @@ mysql -h ${db_host} -P 3306 -u${db_root_user} -p${db_root_password} -e "CREATE U
 
 #MySQL JDBC JAR
 cd ~
-sudo wget https://downloads.mysql.com/archives/get/file/mysql-connector-java-5.1.46.tar.gz
-sudo tar -zxvf mysql-connector-java-5.1.46.tar.gz
-sudo cp mysql-connector-java-5.1.46/mysql-connector-java-5.1.46.jar /usr/share/java/
+sudo wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.48.tar.gz
+sudo tar -zxvf mysql-connector-java-5.1.48.tar.gz
+sudo cp mysql-connector-java-5.1.48/mysql-connector-java-5.1.48.jar /usr/share/java/
 
 #Ranger Admin
 cd /usr/local
@@ -26,7 +26,7 @@ sudo ln -s ranger-1.1.0-admin ranger-admin
 sudo rm ranger-1.1.0-admin.tar.gz 
 cd ranger-admin 
 
-sudo sed -i 's/mysql-connector-java.jar/mysql-connector-java-5.1.46.jar/g' install.properties  
+sudo sed -i 's/mysql-connector-java.jar/mysql-connector-java-5.1.48.jar/g' install.properties  
 sudo sed -i 's/db_root_password=/db_root_password='${db_root_password}'/g' install.properties  
 sudo sed -i 's/db_host=localhost/db_host='${db_host}'/g' install.properties 
 sudo sed -i 's/db_password=/db_password='${db_ranger_passwod}'/g' install.properties 
