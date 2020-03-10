@@ -106,5 +106,9 @@
     5. terraform plan
     6. terraform apply
 
+<p>
+Upon successful application, Terraform will print out all the necessary items required for account integration and network integration.
+Use them in the account settings and cluster pages respectively to get started.
+</p>
 
 <p>That's all folks</p>
