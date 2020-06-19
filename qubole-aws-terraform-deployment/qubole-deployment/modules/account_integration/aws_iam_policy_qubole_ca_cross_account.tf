@@ -14,8 +14,8 @@ Creates a Custom IAM Policy to provide permissions for the holder of this policy
 data "template_file" "qubole_cross_account_policy_template" {
   template = file("${path.module}/policies/qubole_ca_cross_account_policy_doc.json")
   vars = {
-    instance-profile = aws_iam_instance_profile.qubole_dual_role_instance_profile.arn
-    dual-iam-role = aws_iam_role.qubole_dual_role.arn
+    instance-profile = aws_iam_instance_profile.qubole_cross_account_role_instance_profile.arn
+    cross-iam-role = aws_iam_role.qubole_cross_account_role.arn
   }
 }
 

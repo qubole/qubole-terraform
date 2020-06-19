@@ -9,7 +9,7 @@
     {
       "Effect": "Allow",
       "Action": "iam:PassRole",
-      "Resource": "${dual-iam-role}"
+      "Resource": "${cross-iam-role}"
     }
   ]
 }

@@ -15,9 +15,10 @@ resource "aws_key_pair" "terraform_deployer_key_pair" {
 module "account_integration" {
   source = "./modules/account_integration"
   deployment_suffix = random_id.deployment_suffix.hex
-  data_lake_project_region = "<choose your own>"
-  qubole-defloc-name = "<choose your own>"
-  qubole-external-id = "<get from your account>"
+  data_lake_project_region = "<choose>"
+  qubole-defloc-name = "<choose>"
+  qubole-aws-account-id = "<get_from_account>"
+  qubole-external-id = "<get_from_account>"
 }
 
 module "network_infrastructure" {
@@ -25,9 +26,9 @@ module "network_infrastructure" {
   deployment_suffix = random_id.deployment_suffix.hex
   #Required for the metastore to be able to perform a remote execution of Hive Metastore Initialization
   terraform_deployer_key_name = aws_key_pair.terraform_deployer_key_pair.key_name
-  data_lake_project_region = "<choose your own>"
-  public_ssh_key = "<get from your account>"
-  qubole_public_key = "<get from your account>"
+  data_lake_project_region = "<choose>"
+  public_ssh_key = "<get_from_account>"
+  qubole_public_key = "<get_from_account>"
 }
 
 
@@ -49,10 +50,6 @@ output "cross_account_iam_role" {
   value = module.account_integration.qubole_cross_account_role_arn
 }
 
-output "dual_iam_role" {
-  value = module.account_integration.qubole_dual_role_instance_profile
-}
-
 output "qubole_defloc" {
   value = module.account_integration.qubole_defloc
 }
@@ -69,9 +66,14 @@ output "qubole_dedicated_vpc_arn" {
   value = module.network_infrastructure.qubole_dedicated_vpc_arn
 }
 
+output "qubole_dedicated_vpc_private_subnet_arn" {
+  value = module.network_infrastructure.qubole_vpc_private_subnet
+}
+
 output "qubole_vpc_az" {
   value = module.network_infrastructure.qubole_vpc_az
 }
+
 
 output "hive_metastore_ip" {
   value = module.hive_metastore.hive-metastore-db-ip
@@ -88,6 +90,8 @@ output "hive_metastore_password" {
 output "hive_metastore_db_name" {
   value = module.hive_metastore.hive-metastore-db-name
 }
+
+
 
 
 
