@@ -8,11 +8,9 @@ variable "data_lake_project_number" {
 }
 
 variable "data_lake_project_region" {
-  default = "asia-southeast1"
 }
 
 variable "qubole_service_account" {
-  default = "qbol-624-gcp@prod-qsa-project-1.iam.gserviceaccount.com"
 }
 
 variable "qubole_custom_compute_role_id" {

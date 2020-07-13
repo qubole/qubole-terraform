@@ -25,6 +25,8 @@ module "account_integration" {
   deployment_suffix = random_id.deployment_suffix.hex
   data_lake_project = var.data_lake_project
   data_lake_project_number = var.data_lake_project_number
+  data_lake_project_region = "<choose your own>"
+  qubole_service_account = "<get from your account>"
 }
 
 module "network_infrastructure" {

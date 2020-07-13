@@ -62,6 +62,10 @@
     The main.tf can be customized to cherry pick which modules to deploy.
 </p>
 
+<p>
+P.S. This has been compiled with Terraform v0.12
+</p>
+
     There are 3 modules
     1. The account_integration module
         i. Setup a custom compute role with minimum compute permissions
