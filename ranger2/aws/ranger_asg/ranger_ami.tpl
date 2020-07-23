@@ -20,11 +20,6 @@ cp ${MYSQL_VER}/${MYSQL_VER}.jar /usr/share/java/
 rm ${MYSQL_VER}.tar.gz
 rm -R ${MYSQL_VER}
 
-#curl -O https://bootstrap.pypa.io/get-pip.py
-#python get-pip.py
-#pip install awscli
-#rm get-pip.py
-
 #MySQL
 echo "mysql -h ${DB_HOST} -P ${DB_PORT} -u${DB_ROOT_USR} -p${DB_ROOT_PWD}" | tee -a /tmp/ranger_log.txt 
 echo "CREATE USER IF NOT EXISTS '${DB_RANGER_USR}' IDENTIFIED BY '${DB_RANGER_PWD}';GRANT ALL PRIVILEGES ON ranger.* TO '${DB_RANGER_USR}'@'%' WITH GRANT OPTION;" | tee -a /tmp/ranger_log.txt

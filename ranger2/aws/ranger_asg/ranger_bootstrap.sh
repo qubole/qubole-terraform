@@ -1,4 +1,8 @@
-source /usr/lib/qubole/bootstrap-functions/hive/ranger-client.sh
-
+# Sample Hive Cluster Bootstrap
 #Usage for any Hive Cluster: install_ranger -h "RangerDNS/LB" -p Port -S "SolrDNS/LB" -P port
-install_ranger -h xxxx-ranger-alb-xxxxxx.us-east-1.elb.amazonaws.com -p 80 -S xxx-solr-alb-xxxx.us-east-1.elb.amazonaws.com -P 80
+
+# Add below code in Qubole Hive cluster bootstrap to Install Ranger Plugin 
+# by changing RangerDNS, SolrDNS and ports as configured
+
+source /usr/lib/qubole/bootstrap-functions/hive/ranger-client.sh
+install_ranger -h RangerDNS -p 80 -S SolrDNS -P 80

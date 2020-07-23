@@ -19,10 +19,9 @@ wget https://dist.apache.org/repos/dist/release/ranger/${RANGER_VER}/apache-rang
 tar -zxf apache-ranger-${RANGER_VER}.tar.gz
 rm apache-ranger-${RANGER_VER}.tar.gz
 cd apache-ranger-${RANGER_VER}/security-admin/contrib/solr_for_audit_setup
-pwd
 
 sed -i 's/SOLR_INSTALL=false/SOLR_INSTALL=true/g' install.properties
-sed -i 's/SOLR_MAX_MEM=2g/SOLR_MAX_MEM=512m/g' install.properties
+sed -i 's/SOLR_MAX_MEM=2g/SOLR_MAX_MEM=${SOLR_MEM}/g' install.properties
 sed -i 's~SOLR_DOWNLOAD_URL=~SOLR_DOWNLOAD_URL='$SOLR_DWNLD_URL'~g' install.properties
 
 chmod +x setup.sh

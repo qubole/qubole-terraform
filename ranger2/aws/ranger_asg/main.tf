@@ -24,6 +24,7 @@ data "template_file" "solr_base_ami_tmpl" {
     RANGER_VER  = var.ranger_version
     SOLR_URL    = var.solr_download_url
     RANGER_URL  = var.ranger_download_url
+    SOLR_MEM    = var.solr_mem
   }
 }
 
@@ -177,12 +178,10 @@ resource "aws_instance" "tf_solr_base_inst" {
       type        = "ssh"
       user        = "ec2-user"
       host        = aws_instance.tf_solr_base_inst.public_dns
-      private_key = file("${path.module}/pskey.pem")
+      private_key = file("${path.module}/${var.key_name}.pem")
     }
 
-    inline = [
-      "sleep 120;while [ ! -f /tmp/setup-done ]; do echo 'Waiting for solr setup script to complete'; sleep 20; done;"
-    ]
+    script = "setup_file_chk.sh"
   }
 }
 output "solr_base_inst_id" {
@@ -338,10 +337,6 @@ resource "aws_autoscaling_group" "tf_solr_asg" {
     }
 
     depends_on = [aws_launch_template.tf_solr_lt]
-
-    #provisioner "local-exec" {
-    #  command = "sleep 90"
-    #}
 }
 
 data "template_file" "ranger_base_ami_tmpl" {
@@ -357,7 +352,6 @@ data "template_file" "ranger_base_ami_tmpl" {
     DB_PORT         = var.rds_port
     SOLR_DNS        = aws_lb.solr_alb.dns_name
     SOLR_ALB_PORT   = var.solr_alb_port
-    #SOLR_PORT       = var.solr_port
     DB_ROOT_USR     = var.db_user
     DB_RANGER_USR   = var.db_ranger_user 
     DB_RANGER_PWD   = var.db_ranger_pwd
@@ -476,12 +470,9 @@ resource "aws_instance" "tf_ranger_base_inst" {
       type        = "ssh"
       user        = "ec2-user"
       host        = aws_instance.tf_ranger_base_inst.public_dns
-      private_key = file("${path.module}/pskey.pem")
+      private_key = file("${path.module}/${var.key_name}.pem")
     }
-
-    inline = [
-      "sleep 300;while [ ! -f /tmp/setup-done ]; do echo 'Waiting for ranger setup script to complete'; sleep 20; done;"
-    ]
+    script = "setup_file_chk.sh"
   }
 
   user_data = data.template_file.ranger_base_ami_tmpl.rendered
@@ -536,7 +527,6 @@ resource "aws_autoscaling_group" "tf_ranger_asg" {
     min_size                  = var.def_inst_cnt
     max_size                  = var.def_inst_cnt
     desired_capacity          = var.def_inst_cnt
-    #vpc_zone_identifier       = [var.public_subnets[0],var.public_subnets[1]]
     vpc_zone_identifier       = var.public_subnets
     health_check_grace_period = 10 
     health_check_type         = "EC2"
@@ -559,7 +549,7 @@ resource "aws_autoscaling_group" "tf_ranger_asg" {
 resource "null_resource" "create-default-ranger-policy" {
     depends_on = [aws_autoscaling_group.tf_ranger_asg]
     provisioner "local-exec" {
-      command = "sleep 240;python ranger_policy.py ${aws_lb.ranger_alb.dns_name} ${var.def_loc} ${var.service_name} ${var.ranger_alb_port}"
+      command = "sleep 240;python ranger_policy.py ${aws_lb.ranger_alb.dns_name} ${var.def_loc} ${var.service_name} ${var.ranger_alb_port} ${var.qbol_usr_pwd}"
     }
 }
 

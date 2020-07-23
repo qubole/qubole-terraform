@@ -1,15 +1,15 @@
-access_key = "XXXX"  
-secret_key = "XXXX"
+access_key = "ASIA5N67ZMBY5OPOJLH3"  
+secret_key = "tD3NBrXHI2QZJl0lasonL03Ru5c77/Iqv6kXJVoe"
 
-aws_session_token = "XXXX"
+aws_session_token = "FwoGZXIvYXdzEMz//////////wEaDMx77Kf/0Xmm4Ss0RyKGAZvg4pwAZk72w/IfV+HWXVr34wPIoYiMR/N53n3BlGRNcoTLMm8yM09Odun6F9C5go0pFH3XjMj1MdvTm2gF1upuy33X6mFTs2gP+mn96D/RPW1imKNXazLMAL7yf4e18llaV0/ZtVQg2jb8mv3fsYHDpVA6ZSJ9tC66mfsw8eDL6frp6gCOKLHZ5fgFMiicWWPMHnQBEorik3dlYDM6BXGzcRw9IzLRanVxodweOomNLY1nQSUC"
 
 region = "us-east-1"
 
-vpc_id = "vpc-XXXX"
-public_subnets = ["subnet-XXXX", "subnet-XXXX"]
-private_subnets = ["subnet-XXXX", "subnet-XXXX"]
+vpc_id = "vpc-07a3f908edd700f7a"
+public_subnets = ["subnet-09cac71171bc6450f", "subnet-02833920cb5d700d4"]
+private_subnets = ["subnet-0b1e8f21b5d635596", "subnet-001e3fcb2c5becfe6"]
 #your local ip
-local_ips = ["99.0.0.0/32"]
+local_ips = ["99.72.93.229/32","0.0.0.0/0"]
 
 #Security Group Names
 rds_sg_name = "ps-tf-ranger-rds-sg"
@@ -22,8 +22,6 @@ rds_sg_desc = "Ranger RDS Secuirty Group"
 ranger_solr_sg_desc = "Ranger Solr Security Group"
 ranger_alb_sg_desc = "Ranger Application Load Balancer Security Group"
 solr_alb_sg_desc = "Solr Application Load Balancer Security Group"
-
-
 
 ranger_admin_ami_name = "ps-tf-ranger-admin-ami"
 ranger_solr_ami_name = "ps-tf-ranger-solr-ami"
@@ -68,7 +66,8 @@ ami = "ami-09d95fab7fff3776c"
 ranger_instance_type = "t2.micro"
 solr_instance_type = "t2.micro"
 
-#key pair
+#Private key without .pem extension
+#This key will be used to ssh into Ranger and Solr Instances
 key_name = "pskey"
 
 #port
@@ -90,8 +89,10 @@ ranger_version = "2.0.0"
 solr_download_url = "http://archive.apache.org/dist/lucene/solr"
 ranger_download_url = "https://dist.apache.org/repos/dist/release/ranger"
 ranger_admin_path = "https://paid-qubole.s3.amazonaws.com/ranger-2.0.0"
+solr_mem = "512m"
 
+#Ranger Policy 
+#Default loc without s3 prefix
 def_loc = "pritish-qubole"
 service_name = "hivedev"
-
-#log_location = "your s3 log location"
+qbol_usr_pwd = "dummy123"

@@ -76,6 +76,7 @@ variable "rds_port" {}
 variable "ssh_port" {}
 variable "ranger_alb_port" {}
 variable "solr_alb_port" {}
+variable "solr_mem" {}
 
 variable "cookie_duration" {}
 
@@ -92,4 +93,4 @@ variable "java_version" {}
 variable "def_loc" {}
 variable "service_name" {}
 
-#variable "log_location" {}
+variable "qbol_usr_pwd" {}

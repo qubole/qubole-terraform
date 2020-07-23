@@ -1,22 +1,18 @@
 import requests
 import json, sys
 
-#This script takes 4 arguments.
-#Loadbalancer Endpoint.
-#Defloc Location.
-#Service Name to be Created.
-#Loadbalancer Port
-#Usage: python ranger_policy.py LB-IP pritish-qubole hive_policy 80
+# This script takes 4 arguments.
+# Loadbalancer DNS.
+# Defloc Location.
+# Service Name to be Created.
+# Loadbalancer Port
+# Usage: python ranger_policy.py RangerDNS defloc rangerservicename port
 
 host = sys.argv[1]
 defloc_loc =  sys.argv[2] 
 service_name = sys.argv[3]
 port = sys.argv[4]
-
-#host = "ps-cvs-ranger-asg-alb-1733501465.us-east-1.elb.amazonaws.com"
-#defloc_loc =  "pritish-qubole" 
-#service_name = "hivedev"
-#port = 80
+qbol_usr_pwd = sys.argv[5]
 
 if port != 80:
     ranger_url= 'http://' + host + ':' + str(port) + '/service'
@@ -58,8 +54,7 @@ def create_service():
 
     json_data = {"name": service_name, "description": "Hive Qds Policy","type": "hive",
             "configs": config_data, "isEnabled": True}
-#    print(service_policy_url)
-#    print(json_data)
+
     res = post_req_data(service_policy_url, json_data)
     res_data = json.loads(res.text)
     if(res.status_code == 200):
@@ -70,7 +65,7 @@ def create_service():
 
 # Create qbol_user
 def create_qbl_usr(qbl_user):
-    qbol_user_json = {"name": qbl_user,"firstName": qbl_user,"password":"Ranger123","userRoleList":["ROLE_ADMIN_AUDITOR"]} 
+    qbol_user_json = {"name": qbl_user,"firstName": qbl_user,"password": qbol_usr_pwd,"userRoleList":["ROLE_ADMIN_AUDITOR"]} 
     usr_url = user_url + 'secure/users'
     res = post_req_data(usr_url, qbol_user_json)
     res_data = json.loads(res.text)

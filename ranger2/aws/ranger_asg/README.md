@@ -1,15 +1,15 @@
-Pre-requisites: Python and aws-cli required on host machine where Terraform scripts will be executed.
+Pre-requisites: Terraform 0.12, Python and aws-cli, Private Key to ssh.
 
-Terraform script to build infrastructure for RangerAdmin-2 with Autoscaling Groups. 
-Following resources will be provisioned.
+Terraform script to build infrastructure for RangerAdmin-2 with Autoscaling Groups in Public Subnet.
+It also creates Ranger Hive Service, Default qbol_user and qubole_health_check policy.
 
-. Ranger DB
-. Security Groups
-. Application Load Balancer for Solr and Ranger
-. Base AMI for Ranger and Solr
-. Launch templates for Ranger and Solr Instances
-. Auto scaling groups for Ranger and Solr
-. Ranger Hive Service and Default qbol_user and qubole_health_check policy
+# Following resources will be provisioned.
+1. Ranger DB
+2. Security Groups
+3. Application Load Balancer for Solr and Ranger
+4. Base AMI for Ranger and Solr
+5. Launch templates for Ranger and Solr Instances
+6. Auto scaling groups for Ranger and Solr
 
 # Changes required only in terraform.tfvar file.
 # Running the script: 
