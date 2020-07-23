@@ -1,15 +1,15 @@
-access_key = "ASIA5N67ZMBY5OPOJLH3"  
-secret_key = "tD3NBrXHI2QZJl0lasonL03Ru5c77/Iqv6kXJVoe"
+access_key = "xxxxx"  
+secret_key = "xxxxx"
 
-aws_session_token = "FwoGZXIvYXdzEMz//////////wEaDMx77Kf/0Xmm4Ss0RyKGAZvg4pwAZk72w/IfV+HWXVr34wPIoYiMR/N53n3BlGRNcoTLMm8yM09Odun6F9C5go0pFH3XjMj1MdvTm2gF1upuy33X6mFTs2gP+mn96D/RPW1imKNXazLMAL7yf4e18llaV0/ZtVQg2jb8mv3fsYHDpVA6ZSJ9tC66mfsw8eDL6frp6gCOKLHZ5fgFMiicWWPMHnQBEorik3dlYDM6BXGzcRw9IzLRanVxodweOomNLY1nQSUC"
+aws_session_token = "xxxxx"
 
 region = "us-east-1"
 
-vpc_id = "vpc-07a3f908edd700f7a"
-public_subnets = ["subnet-09cac71171bc6450f", "subnet-02833920cb5d700d4"]
-private_subnets = ["subnet-0b1e8f21b5d635596", "subnet-001e3fcb2c5becfe6"]
+vpc_id = "vpc-xxxxx"
+public_subnets = ["subnet-xxxxx", "subnet-xxxxx"]
+private_subnets = ["subnet-xxxxx", "subnet-xxxxx"]
 #your local ip
-local_ips = ["99.72.93.229/32","0.0.0.0/0"]
+local_ips = ["99.0.0.0/32"]
 
 #Security Group Names
 rds_sg_name = "ps-tf-ranger-rds-sg"
@@ -60,7 +60,7 @@ db_instance_type = "db.t2.micro"
 ### Ranger and Solr Ami needs to be created from Base AMI.
 ranger_ami_instance_type  = "t2.micro"
 solr_ami_instance_type  = "t2.micro"
-ami = "ami-09d95fab7fff3776c"
+ami = "ami-xxxxx"
 
 #ranger admin instance
 ranger_instance_type = "t2.micro"
@@ -93,6 +93,6 @@ solr_mem = "512m"
 
 #Ranger Policy 
 #Default loc without s3 prefix
-def_loc = "pritish-qubole"
+def_loc = "abc-data"
 service_name = "hivedev"
 qbol_usr_pwd = "dummy123"
