@@ -564,7 +564,6 @@ resource "null_resource" "update-ranger-asg" {
 				export AWS_SESSION_TOKEN=${var.aws_session_token}
 			fi
 			aws ec2 terminate-instances --instance-ids ${aws_instance.tf_solr_base_inst.id} ${aws_instance.tf_ranger_base_inst.id}
-			
             aws autoscaling update-auto-scaling-group --auto-scaling-group-name ${aws_autoscaling_group.tf_ranger_asg.name} --min-size ${var.ranger_inst_cnt} --max-size ${var.ranger_inst_cnt}
     	EOT
     }
