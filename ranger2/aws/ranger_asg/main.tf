@@ -553,17 +553,18 @@ resource "null_resource" "create-default-ranger-policy" {
     }
 }
 
-resource "null_resource" "terminate-base-ami-inst" {
-    depends_on = [aws_autoscaling_group.tf_ranger_asg]
-    provisioner "local-exec" {
-      command = "aws ec2 terminate-instances --instance-ids ${aws_instance.tf_solr_base_inst.id} ${aws_instance.tf_ranger_base_inst.id}"
-    }
-}
-
 resource "null_resource" "update-ranger-asg" {
     depends_on = [aws_autoscaling_group.tf_ranger_asg]
     provisioner "local-exec" {
-      command = "aws autoscaling update-auto-scaling-group --auto-scaling-group-name ${aws_autoscaling_group.tf_ranger_asg.name} --min-size ${var.ranger_inst_cnt} --max-size ${var.ranger_inst_cnt}"
+      command = <<EOT
+      		export AWS_ACCESS_KEY_ID=${var.access_key}
+			export AWS_SECRET_ACCESS_KEY=${var.secret_key}
+
+			if [ "${var.aws_session_token}" != "" ]; then
+				export AWS_SESSION_TOKEN=${var.aws_session_token}
+			fi
+      		aws autoscaling update-auto-scaling-group --auto-scaling-group-name ${aws_autoscaling_group.tf_ranger_asg.name} --min-size ${var.ranger_inst_cnt} --max-size ${var.ranger_inst_cnt}
+            aws ec2 terminate-instances --instance-ids ${aws_instance.tf_solr_base_inst.id} ${aws_instance.tf_ranger_base_inst.id}
+    	EOT
     }
 }
-
