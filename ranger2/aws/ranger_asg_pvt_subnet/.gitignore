@@ -1,0 +1,8 @@
+*.tfstate
+*.tfstate.backup
+*.tfstate.lock.info
+.terraform
+.terraform/*
+.idea
+.idea/*
+.DS_Store
