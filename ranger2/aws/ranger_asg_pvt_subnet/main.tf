@@ -109,26 +109,12 @@ resource "aws_security_group" "ec2_sg" {
 
   #Allow ranger admin
   ingress {
-    from_port   = var.ranger_port
-    to_port     = var.ranger_port
-    protocol    = "tcp"
-    cidr_blocks = var.access_from_ips
-  }
-
-  ingress {
     from_port       = var.ranger_port
     to_port         = var.ranger_port
     protocol        = "tcp"
     cidr_blocks = [data.aws_vpc.selected.cidr_block]
   }
   #allow solr
-  ingress {
-    from_port       = var.solr_port
-    to_port         = var.solr_port
-    protocol        = "tcp"
-    cidr_blocks = var.access_from_ips
-  }
-
   ingress {
     from_port   = var.solr_port
     to_port     = var.solr_port
@@ -249,8 +235,8 @@ resource "aws_lb_target_group" "solr_alb_tg" {
   health_check {    
     healthy_threshold   = 3    
     unhealthy_threshold = 5 
-    timeout             = 5    
-    interval            = 10    
+    timeout             = 10
+    interval            = 20
     path                = "/"    
     port                = var.solr_port
   }
@@ -415,8 +401,8 @@ resource "aws_lb_target_group" "ranger_alb_tg" {
   health_check {    
     healthy_threshold   = 3    
     unhealthy_threshold = 5 
-    timeout             = 5    
-    interval            = 10    
+    timeout             = 10
+    interval            = 20
     path                = "/login.jsp"    
     port                = var.ranger_port
   }
