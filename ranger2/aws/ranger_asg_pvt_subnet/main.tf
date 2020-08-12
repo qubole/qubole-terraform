@@ -25,15 +25,15 @@ data "template_file" "solr_base_ami_tmpl" {
     SOLR_URL    = var.solr_download_url
     RANGER_URL  = var.ranger_download_url
     SOLR_MEM    = var.solr_mem
+    SOLR_AUDIT_RET_DAYS = var.solr_audit_ret_days
   }
 }
 
 #------MySQL Ranger RDS---------
-
 #Create DB subnet groups
 resource "aws_db_subnet_group" "rds_db_subnet_grp" {
   name       = var.db_subnet_group_name
-  subnet_ids = var.public_subnets
+  subnet_ids = var.private_subnets
 
   tags = {
     Name = var.db_subnet_group_name
@@ -97,7 +97,6 @@ output "ranger_rds_address"{
 }
 
 #------Ranger and Solr Instance Security Groups-----
-
 #Configure Security Group for EC2
 resource "aws_security_group" "ec2_sg" {
   name        = var.ranger_solr_sg_name
@@ -110,26 +109,12 @@ resource "aws_security_group" "ec2_sg" {
 
   #Allow ranger admin
   ingress {
-    from_port   = var.ranger_port
-    to_port     = var.ranger_port
-    protocol    = "tcp"
-    cidr_blocks = var.local_ips
-  }
-
-  ingress {
     from_port       = var.ranger_port
     to_port         = var.ranger_port
     protocol        = "tcp"
     cidr_blocks = [data.aws_vpc.selected.cidr_block]
   }
   #allow solr
-  ingress {
-    from_port       = var.solr_port
-    to_port         = var.solr_port
-    protocol        = "tcp"
-    cidr_blocks = var.local_ips
-  }
-
   ingress {
     from_port   = var.solr_port
     to_port     = var.solr_port
@@ -141,7 +126,7 @@ resource "aws_security_group" "ec2_sg" {
     from_port   = var.ssh_port
     to_port     = var.ssh_port
     protocol    = "tcp"
-    cidr_blocks = var.local_ips
+    cidr_blocks = var.access_from_ips
   }
   ingress {
     from_port   = var.ssh_port
@@ -162,14 +147,14 @@ resource "aws_security_group" "ec2_sg" {
 
 #Configure EC2 instance for solr AMI
 resource "aws_instance" "tf_solr_base_inst" {
-  ami = var.ami
-  instance_type = var.solr_instance_type
+  ami = var.baseami
+  instance_type = var.solr_ami_inst_type
   associate_public_ip_address = "true"
   key_name = var.key_name
   subnet_id = var.public_subnets[0]
   security_groups = [aws_security_group.ec2_sg.id]
   tags = { 
-    Name = var.ranger_solr_ami_name
+    Name = var.solr_base_inst_name
   }
   user_data = data.template_file.solr_base_ami_tmpl.rendered
 
@@ -180,7 +165,6 @@ resource "aws_instance" "tf_solr_base_inst" {
       host        = aws_instance.tf_solr_base_inst.public_dns
       private_key = file("${path.module}/${var.key_name}.pem")
     }
-
     script = "setup_file_chk.sh"
   }
 }
@@ -190,10 +174,10 @@ output "solr_base_inst_id" {
 
 #Create SOLR AMI 
 resource "aws_ami_from_instance" "tf_solr_ami" {
-  name               = var.ranger_solr_ami_name
+  name               = var.solr_ami_name
   source_instance_id = aws_instance.tf_solr_base_inst.id
   tags = { 
-    Name = var.ranger_solr_ami_name
+    Name = var.ranger_base_inst_name
   }
 }
 output "solr_ami_id" {
@@ -202,7 +186,6 @@ output "solr_ami_id" {
 
 ###---- Solr Load Balancer -----
 ### Configure Security Group for Solr Load Balancer
-
 resource "aws_security_group" "solr_alb_sg" {
   name        = var.solr_alb_sg_name
   description = var.solr_alb_sg_desc
@@ -224,7 +207,7 @@ resource "aws_security_group" "solr_alb_sg" {
     from_port       = var.solr_alb_port
     to_port         = var.solr_alb_port
     protocol        = "tcp"
-    cidr_blocks     = var.local_ips
+    cidr_blocks     = var.access_from_ips
   }
 
   # Allow all outbound traffic.
@@ -252,8 +235,8 @@ resource "aws_lb_target_group" "solr_alb_tg" {
   health_check {    
     healthy_threshold   = 3    
     unhealthy_threshold = 5 
-    timeout             = 5    
-    interval            = 10    
+    timeout             = 10
+    interval            = 20
     path                = "/"    
     port                = var.solr_port
   }
@@ -293,21 +276,26 @@ output "solr_alb_name"{
 resource "aws_launch_template" "tf_solr_lt" {
   name          = var.solr_lt_name
   image_id      = aws_ami_from_instance.tf_solr_ami.id
-  instance_type = var.solr_instance_type
+  instance_type = var.solr_inst_type
   key_name      = var.key_name
-
+  block_device_mappings {
+    device_name = var.solr_dev_name
+    ebs {
+      volume_size = var.solr_volume_size
+    }
+  }
   network_interfaces {
-    associate_public_ip_address = true
-    delete_on_termination = false
+    associate_public_ip_address = false
+    delete_on_termination = true
     device_index = 0
-    subnet_id = var.public_subnets[1]
+    subnet_id = var.private_subnets[1]
     security_groups = [aws_security_group.ec2_sg.id]
   }
 
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name = var.ranger_solr_name
+      Name = var.solr_inst_name
     }
   }
   depends_on = [aws_ami_from_instance.tf_solr_ami]
@@ -317,26 +305,25 @@ resource "aws_launch_template" "tf_solr_lt" {
 
 resource "aws_autoscaling_group" "tf_solr_asg" {
     name                      = var.solr_asg_name
-    min_size                  = 1
-    max_size                  = 1
-    desired_capacity          = 1
-    vpc_zone_identifier       = var.public_subnets
-    health_check_grace_period = 10 
+    min_size                  = var.solr_inst_cnt
+    max_size                  = var.solr_inst_cnt
+    desired_capacity          = var.solr_inst_cnt
+    vpc_zone_identifier       = var.private_subnets
+    health_check_grace_period = 10
+    wait_for_capacity_timeout = "10m"
     health_check_type         = "EC2"
     default_cooldown          = 10
+    target_group_arns         = [aws_lb_target_group.solr_alb_tg.arn]
+    depends_on = [aws_launch_template.tf_solr_lt]
     launch_template {
       id      = aws_launch_template.tf_solr_lt.id
       version = "$Latest"
     }
-    target_group_arns         = [aws_lb_target_group.solr_alb_tg.arn]
-
     tag {
       key = "Name"
-      value = var.ranger_solr_name
+      value = var.solr_inst_name
       propagate_at_launch = true
     }
-
-    depends_on = [aws_launch_template.tf_solr_lt]
 }
 
 data "template_file" "ranger_base_ami_tmpl" {
@@ -360,7 +347,6 @@ data "template_file" "ranger_base_ami_tmpl" {
   }
   depends_on = [aws_lb.solr_alb]
 }
-
 
 ### Ranger Setup
 ###---- Ranger Load Balancer -----
@@ -387,7 +373,7 @@ resource "aws_security_group" "ranger_alb_sg" {
     from_port       = var.ranger_alb_port
     to_port         = var.ranger_alb_port
     protocol        = "tcp"
-    cidr_blocks     = var.local_ips
+    cidr_blocks     = var.access_from_ips
   }
 
   # Allow all outbound traffic.
@@ -415,8 +401,8 @@ resource "aws_lb_target_group" "ranger_alb_tg" {
   health_check {    
     healthy_threshold   = 3    
     unhealthy_threshold = 5 
-    timeout             = 5    
-    interval            = 10    
+    timeout             = 10
+    interval            = 20
     path                = "/login.jsp"    
     port                = var.ranger_port
   }
@@ -454,15 +440,15 @@ output "ranger_alb_name"{
 
 #Configure EC2 instance for Ranger AMI
 resource "aws_instance" "tf_ranger_base_inst" {
-  ami                         = var.ami
-  instance_type               = var.ranger_instance_type
+  ami                         = var.baseami
+  instance_type               = var.ranger_ami_inst_type
   associate_public_ip_address = "true"
   key_name                    = var.key_name
   subnet_id                   = var.public_subnets[0]
   security_groups             = [aws_security_group.ec2_sg.id]
   depends_on                  = [aws_db_instance.ranger_mysql]
   tags = { 
-    Name = var.ranger_admin_ami_name
+    Name = var.ranger_base_inst_name
   }
 
   provisioner "remote-exec" {
@@ -484,10 +470,10 @@ output "ranger_base_inst_id" {
 
 #Create Ranger AMI 
 resource "aws_ami_from_instance" "tf_ranger_ami" {
-  name               = var.ranger_admin_ami_name
+  name               = var.ranger_ami_name
   source_instance_id = aws_instance.tf_ranger_base_inst.id
   tags = { 
-    Name = var.ranger_admin_ami_name
+    Name = var.ranger_ami_name
   }
 }
 
@@ -499,22 +485,27 @@ output "ranger_ami_id" {
 resource "aws_launch_template" "tf_ranger_lt" {
   name          = var.ranger_lt_name
   image_id      = aws_ami_from_instance.tf_ranger_ami.id
-  instance_type = var.ranger_instance_type
-  key_name      = var.key_name
+  instance_type = var.ranger_inst_type
+  key_name      =  var.key_name
   depends_on    = [aws_ami_from_instance.tf_ranger_ami]
-
+  block_device_mappings {
+    device_name = var.ranger_dev_name
+    ebs {
+      volume_size = var.ranger_volume_size
+    }
+  }
   network_interfaces {
-    associate_public_ip_address = true
+    associate_public_ip_address = false
     delete_on_termination = true
     device_index = 0
-    subnet_id = var.public_subnets[1]
+    subnet_id = var.private_subnets[1]
     security_groups = [aws_security_group.ec2_sg.id]
   }
 
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name = var.ranger_admin_name
+      Name = var.ranger_inst_name
     }
   }
 
@@ -523,25 +514,23 @@ resource "aws_launch_template" "tf_ranger_lt" {
 
 resource "aws_autoscaling_group" "tf_ranger_asg" {
     name                      = var.ranger_asg_name
-    #count                     = var.ranger_inst_cnt
     min_size                  = var.def_inst_cnt
     max_size                  = var.def_inst_cnt
     desired_capacity          = var.def_inst_cnt
-    vpc_zone_identifier       = var.public_subnets
+    vpc_zone_identifier       = var.private_subnets
     health_check_grace_period = 10 
     health_check_type         = "EC2"
     default_cooldown          = 10
-    wait_for_elb_capacity     = 0
     wait_for_capacity_timeout = "10m"
     target_group_arns         = [aws_lb_target_group.ranger_alb_tg.arn]
-    depends_on                = [aws_launch_template.tf_ranger_lt]
+    depends_on = [aws_launch_template.tf_ranger_lt]
     launch_template {
       id      = aws_launch_template.tf_ranger_lt.id
       version = "$Latest"
     }
     tag {
       key = "Name"
-      value = var.ranger_admin_name
+      value = var.ranger_inst_name
       propagate_at_launch = true
     }
 }
