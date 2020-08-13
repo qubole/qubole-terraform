@@ -12,6 +12,7 @@ It also creates Ranger Hive Service, Default qbol_user and qubole_health_check p
 6. Auto scaling groups for Ranger and Solr
 
 # Changes required only in terraform.tfvar file.
+Copy ssh key in same location as tf scripts.
 # Running the script: 
 1. terraform init
 2. terraform plan

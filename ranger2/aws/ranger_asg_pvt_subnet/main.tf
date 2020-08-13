@@ -548,6 +548,7 @@ resource "null_resource" "update-ranger-asg" {
       command = <<EOT
       		export AWS_ACCESS_KEY_ID=${var.access_key}
 			export AWS_SECRET_ACCESS_KEY=${var.secret_key}
+			export AWS_DEFAULT_REGION=${var.region}
 
 			if [ "${var.aws_session_token}" != "" ]; then
 				export AWS_SESSION_TOKEN=${var.aws_session_token}

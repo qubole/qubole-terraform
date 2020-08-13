@@ -49,9 +49,9 @@ db_engine = "mysql"
 db_engine_version = "5.7.25"
 db_name = "ranger"
 db_user = "root"
-db_pwd = "password"
+db_pwd = "xxxx"
 db_ranger_user = "rangeradmin"
-db_ranger_pwd = "password"
+db_ranger_pwd = "xxxx"
 
 db_subnet_group_name = "ps-tf-db-subnet"
 db_allocated_storage = 20
@@ -75,7 +75,7 @@ ranger_alb_port = 80
 ranger_port = 6080
 solr_alb_port = 80
 solr_port = 6083
-rds_port = 53306
+rds_port = 3306
 ssh_port = 22
 
 #cookie duration in seconds
