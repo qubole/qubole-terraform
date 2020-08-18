@@ -1,0 +1,48 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+      {
+          "Effect": "Allow",
+          "Action": [
+              "ec2:RequestSpotFleet",
+              "ec2:CreateFleet",
+              "ec2:DescribeSpotFleetInstances",
+              "ec2:DescribeSpotFleetRequests",
+              "ec2:DescribeSpotFleetRequestHistory",
+              "ec2:CancelSpotFleetRequests",
+              "ec2:DeleteLaunchTemplate",
+              "ec2:DeleteLaunchTemplateVersions",
+              "ec2:CreateLaunchTemplateVersion",
+              "ec2:CreateLaunchTemplate",
+              "ec2:DescribeLaunchTemplates",
+              "ec2:DescribeLaunchTemplateVersions",
+              "iam:PassRole",
+              "iam:ListRoles",
+              "iam:GetRole",
+              "iam:ListInstanceProfiles"
+          ],
+          "Resource": [
+              "*"
+          ]
+      },
+      {
+          "Effect": "Allow",
+          "Action": [
+              "iam:CreateServiceLinkedRole",
+              "iam:PutRolePolicy"
+          ],
+          "Resource": [
+              "arn:aws:iam::*:role/aws-service-role/spot.amazonaws.com/AWSServiceRoleForEC2Spot",
+              "arn:aws:iam::*:role/aws-service-role/spotfleet.amazonaws.com/AWSServiceRoleForEC2SpotFleet"
+          ],
+          "Condition": {
+              "StringLike": {
+                  "iam:AWSServiceName": [
+                      "spot.amazonaws.com",
+                      "spotfleet.amazonaws.com"
+                  ]
+              }
+          }
+      }
+  ]
+}
