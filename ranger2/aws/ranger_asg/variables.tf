@@ -30,21 +30,26 @@ variable "solr_alb_sg_desc" {}
 variable "ranger_admin_ami_name" {}
 variable "ranger_solr_ami_name" {}
 
-variable "ranger_alb_name" {}
+variable "ranger_alb_name_pub" {}
+variable "ranger_alb_name_int" {}
+
 variable "ranger_admin_name" {}
 variable "ranger_solr_name" {}
-variable "ranger_alb_tg_name" {}
 
-variable "solr_alb_name" {}
-variable "solr_alb_tg_name" {}
+variable "ranger_alb_tg_name_pub" {}
+variable "ranger_alb_tg_name_int" {}
 
+variable "solr_alb_name_pub" {}
+variable "solr_alb_tg_name_pub" {}
+
+variable "solr_alb_name_int" {}
+variable "solr_alb_tg_name_int" {}
 
 variable "solr_lt_name" {}
 variable "solr_asg_name" {}
 
 variable "ranger_lt_name" {}
 variable "ranger_asg_name" {}
-
 
 variable "db_host_name" {}
 variable "db_engine" {}

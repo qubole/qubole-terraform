@@ -136,6 +136,13 @@ resource "aws_security_group" "ec2_sg" {
     protocol    = "tcp"
     cidr_blocks = [data.aws_vpc.selected.cidr_block]
   }
+
+#  ingress {
+#    from_port   = var.ranger_alb_port
+#    to_port     = var.ranger_alb_port
+#    protocol    = "tcp"
+#    cidr_blocks = [data.aws_vpc.selected.cidr_block]
+#  }
   # SSH 
   ingress {
     from_port   = var.ssh_port
@@ -236,9 +243,9 @@ resource "aws_security_group" "solr_alb_sg" {
   }
 }
 
-#Configure target group for Solr Load Balancer
-resource "aws_lb_target_group" "solr_alb_tg" {
-  name                 = var.solr_alb_tg_name
+#Configure target group for Solr Load Balancer Public
+resource "aws_lb_target_group" "solr_alb_tg_pub" {
+  name                 = var.solr_alb_tg_name_pub
   port                 = var.solr_port
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
@@ -256,12 +263,13 @@ resource "aws_lb_target_group" "solr_alb_tg" {
     interval            = 10    
     path                = "/"    
     port                = var.solr_port
+    matcher             = "200,302"
   }
 }
 
-#Configure Solr Load Balancer
-resource "aws_lb" "solr_alb" {
-  name                       = var.solr_alb_name
+#Configure Solr Load Balancer Public
+resource "aws_lb" "solr_alb_pub" {
+  name                       = var.solr_alb_name_pub
   internal                   = false
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.solr_alb_sg.id]
@@ -269,24 +277,78 @@ resource "aws_lb" "solr_alb" {
   enable_deletion_protection = false
 
   tags = {
-    Name = var.solr_alb_name
+    Name = var.solr_alb_name_pub
   }
 }
 
-#Configure listener for Solr load balancer
-resource "aws_lb_listener" "solr_alb_listener" {  
-  load_balancer_arn = aws_lb.solr_alb.arn 
+#Configure listener for Solr load balancer Public
+resource "aws_lb_listener" "solr_alb_listener_pub" {
+  load_balancer_arn = aws_lb.solr_alb_pub.arn
   port              = var.solr_alb_port 
   protocol          = "HTTP"
   
   default_action {    
-    target_group_arn = aws_lb_target_group.solr_alb_tg.arn
+    target_group_arn = aws_lb_target_group.solr_alb_tg_pub.arn
     type             = "forward"  
   }
 }
 
-output "solr_alb_name"{  
-  value = aws_lb.solr_alb.dns_name
+output "solr_alb_name_pub"{
+  value = aws_lb.solr_alb_pub.dns_name
+}
+
+#Configure target group for Solr Load Balancer Internal
+resource "aws_lb_target_group" "solr_alb_tg_int" {
+  name                 = var.solr_alb_tg_name_int
+  port                 = var.solr_port
+  protocol             = "HTTP"
+  vpc_id               = var.vpc_id
+  deregistration_delay = 10
+  stickiness {
+    type = "lb_cookie"
+    enabled = true
+    cookie_duration = var.cookie_duration
+  }
+
+  health_check {
+    healthy_threshold   = 3
+    unhealthy_threshold = 5
+    timeout             = 5
+    interval            = 10
+    path                = "/"
+    port                = var.solr_port
+    matcher             = "200,302"
+  }
+}
+
+#Configure Solr Load Balancer Internal
+resource "aws_lb" "solr_alb_int" {
+  name                       = var.solr_alb_name_int
+  internal                   = true
+  load_balancer_type         = "application"
+  security_groups            = [aws_security_group.solr_alb_sg.id]
+  subnets                    = var.public_subnets
+  enable_deletion_protection = false
+
+  tags = {
+    Name = var.solr_alb_name_int
+  }
+}
+
+#Configure listener for Solr load balancer Internal
+resource "aws_lb_listener" "solr_alb_listener_int" {
+  load_balancer_arn = aws_lb.solr_alb_int.arn
+  port              = var.solr_alb_port
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = aws_lb_target_group.solr_alb_tg_int.arn
+    type             = "forward"
+  }
+}
+
+output "solr_alb_name_int"{
+  value = aws_lb.solr_alb_int.dns_name
 }
 
 #Create Solr Launch Template
@@ -328,7 +390,7 @@ resource "aws_autoscaling_group" "tf_solr_asg" {
       id      = aws_launch_template.tf_solr_lt.id
       version = "$Latest"
     }
-    target_group_arns         = [aws_lb_target_group.solr_alb_tg.arn]
+    target_group_arns = [aws_lb_target_group.solr_alb_tg_pub.arn, aws_lb_target_group.solr_alb_tg_int.arn]
 
     tag {
       key = "Name"
@@ -350,7 +412,7 @@ data "template_file" "ranger_base_ami_tmpl" {
     RANGER_URL      = var.ranger_download_url
     DB_HOST         = aws_db_instance.ranger_mysql.address
     DB_PORT         = var.rds_port
-    SOLR_DNS        = aws_lb.solr_alb.dns_name
+    SOLR_DNS        = aws_lb.solr_alb_int.dns_name
     SOLR_ALB_PORT   = var.solr_alb_port
     DB_ROOT_USR     = var.db_user
     DB_RANGER_USR   = var.db_ranger_user 
@@ -358,9 +420,8 @@ data "template_file" "ranger_base_ami_tmpl" {
     DB_ROOT_PWD     = var.db_pwd
     RANGER_ADM_PATH = var.ranger_admin_path
   }
-  depends_on = [aws_lb.solr_alb]
+  depends_on = [aws_lb.solr_alb_int]
 }
-
 
 ### Ranger Setup
 ###---- Ranger Load Balancer -----
@@ -399,9 +460,9 @@ resource "aws_security_group" "ranger_alb_sg" {
   }
 }
 
-#Configure target group for Load Balancer
-resource "aws_lb_target_group" "ranger_alb_tg" {
-  name                 = var.ranger_alb_tg_name
+#Configure target group for Load Balancer Pubic
+resource "aws_lb_target_group" "ranger_alb_tg_pub" {
+  name                 = var.ranger_alb_tg_name_pub
   port                 = var.ranger_port
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
@@ -423,8 +484,8 @@ resource "aws_lb_target_group" "ranger_alb_tg" {
 }
 
 #Configure Load Balancer
-resource "aws_lb" "ranger_alb" {
-  name                       = var.ranger_alb_name
+resource "aws_lb" "ranger_alb_pub" {
+  name                       = var.ranger_alb_name_pub
   internal                   = false
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.ranger_alb_sg.id]
@@ -432,24 +493,77 @@ resource "aws_lb" "ranger_alb" {
   enable_deletion_protection = false
 
   tags = {
-    Name = var.ranger_alb_name
+    Name = var.ranger_alb_name_pub
   }
 }
 
 #Configure listener for load balancer
-resource "aws_lb_listener" "ranger_alb_listener" {  
-  load_balancer_arn = aws_lb.ranger_alb.arn 
+resource "aws_lb_listener" "ranger_alb_listener_pub" {
+  load_balancer_arn = aws_lb.ranger_alb_pub.arn
   port              = var.ranger_alb_port 
   protocol          = "HTTP"
   
   default_action {    
-    target_group_arn = aws_lb_target_group.ranger_alb_tg.arn
+    target_group_arn = aws_lb_target_group.ranger_alb_tg_pub.arn
     type             = "forward"  
   }
 }
 
-output "ranger_alb_name"{  
-  value = aws_lb.ranger_alb.dns_name
+output "ranger_alb_name_pub"{
+  value = aws_lb.ranger_alb_pub.dns_name
+}
+
+#Configure target group for Load Balancer Internal
+resource "aws_lb_target_group" "ranger_alb_tg_int" {
+  name                 = var.ranger_alb_tg_name_int
+  port                 = var.ranger_port
+  protocol             = "HTTP"
+  vpc_id               = var.vpc_id
+  deregistration_delay = 20
+  stickiness {
+    type = "lb_cookie"
+    enabled = true
+    cookie_duration = var.cookie_duration
+  }
+
+  health_check {
+    healthy_threshold   = 3
+    unhealthy_threshold = 5
+    timeout             = 5
+    interval            = 10
+    path                = "/login.jsp"
+    port                = var.ranger_port
+  }
+}
+
+#Configure Load Balancer Internal
+resource "aws_lb" "ranger_alb_int" {
+  name                       = var.ranger_alb_name_int
+  internal                   = true
+  load_balancer_type         = "application"
+  security_groups            = [aws_security_group.ranger_alb_sg.id]
+  subnets                    = var.public_subnets
+  enable_deletion_protection = false
+
+  tags = {
+    Name = var.ranger_alb_name_int
+  }
+}
+
+#Configure listener for load balancer Internal
+resource "aws_lb_listener" "ranger_alb_listener_int" {
+  load_balancer_arn = aws_lb.ranger_alb_int.arn
+  port              = var.ranger_alb_port
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = aws_lb_target_group.ranger_alb_tg_int.arn
+    type             = "forward"
+  }
+}
+
+output "ranger_alb_name_int"{
+  value = aws_lb.ranger_alb_int.dns_name
 }
 
 #Configure EC2 instance for Ranger AMI
@@ -533,7 +647,7 @@ resource "aws_autoscaling_group" "tf_ranger_asg" {
     default_cooldown          = 10
     wait_for_elb_capacity     = 0
     wait_for_capacity_timeout = "10m"
-    target_group_arns         = [aws_lb_target_group.ranger_alb_tg.arn]
+    target_group_arns         = [aws_lb_target_group.ranger_alb_tg_pub.arn, aws_lb_target_group.ranger_alb_tg_int.arn]
     depends_on                = [aws_launch_template.tf_ranger_lt]
     launch_template {
       id      = aws_launch_template.tf_ranger_lt.id
@@ -549,7 +663,7 @@ resource "aws_autoscaling_group" "tf_ranger_asg" {
 resource "null_resource" "create-default-ranger-policy" {
     depends_on = [aws_autoscaling_group.tf_ranger_asg]
     provisioner "local-exec" {
-      command = "sleep 240;python ranger_policy.py ${aws_lb.ranger_alb.dns_name} ${var.def_loc} ${var.service_name} ${var.ranger_alb_port} ${var.qbol_usr_pwd}"
+      command = "sleep 180;python ranger_policy.py ${aws_lb.ranger_alb_pub.dns_name} ${var.def_loc} ${var.service_name} ${var.ranger_alb_port} ${var.qbol_usr_pwd}"
     }
 }
 
@@ -567,5 +681,8 @@ resource "null_resource" "update-ranger-asg" {
 			aws ec2 terminate-instances --instance-ids ${aws_instance.tf_solr_base_inst.id} ${aws_instance.tf_ranger_base_inst.id}
             aws autoscaling update-auto-scaling-group --auto-scaling-group-name ${aws_autoscaling_group.tf_ranger_asg.name} --min-size ${var.ranger_inst_cnt} --max-size ${var.ranger_inst_cnt}
     	EOT
+    }
+    triggers = {
+      always_run = timestamp()
     }
 }

@@ -6,12 +6,13 @@ It also creates Ranger Hive Service, Default qbol_user and qubole_health_check p
 # Following resources will be provisioned.
 1. Ranger DB
 2. Security Groups
-3. Application Load Balancer for Solr and Ranger
+3. ALB Internet Facing for Solr and Ranger for UI Access
+4. ALB Internal Facing for Solr and Ranger for Cluster Access
 4. Base AMI for Ranger and Solr
 5. Launch templates for Ranger and Solr Instances
 6. Auto scaling groups for Ranger and Solr
 
-# Changes required only in terraform.tfvar file.
+# Changes required only in terraform.tfvar.
 Copy ssh key in same location as tf scripts.
 # Running the script: 
 1. terraform init
