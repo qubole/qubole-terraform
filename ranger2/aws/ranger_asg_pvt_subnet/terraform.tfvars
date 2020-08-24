@@ -13,6 +13,9 @@ private_subnets = ["subnet-xxxx", "subnet-xxxx"]
 #IP Access
 access_from_ips = ["99.xxxx/32"]
 
+#SSH Access
+ssh_access =["99.xxxx/32"]
+
 #RDS properties
 rds_port = 3306
 db_user = "root"

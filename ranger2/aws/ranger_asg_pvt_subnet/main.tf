@@ -80,7 +80,7 @@ resource "aws_db_instance" "ranger_mysql" {
   vpc_security_group_ids    = [aws_security_group.rds_sg.id]
   skip_final_snapshot       = true
   final_snapshot_identifier = "Ignore"
-  publicly_accessible       = true
+  publicly_accessible       = false
 }
 provider "mysql" {
   endpoint = aws_db_instance.ranger_mysql.endpoint
@@ -126,7 +126,7 @@ resource "aws_security_group" "ec2_sg" {
     from_port   = var.ssh_port
     to_port     = var.ssh_port
     protocol    = "tcp"
-    cidr_blocks = var.access_from_ips
+    cidr_blocks = var.ssh_access
   }
   ingress {
     from_port   = var.ssh_port

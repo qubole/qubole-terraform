@@ -17,6 +17,11 @@ variable "access_from_ips" {
   type = list(string)
 }
 
+#SSH Access
+variable "ssh_access" {
+  type = list(string)
+}
+
 #RDS properties
 variable "rds_port" {}
 variable "db_user" {}

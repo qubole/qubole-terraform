@@ -35,7 +35,8 @@ rm $RANGER_ADMIN.tar.gz
 
 cd ranger-admin 
 
-sed -i 's/mysql-connector-java.jar/${MYSQL_VER}.jar/g' install.properties  
+sed -i 's/mysql-connector-java.jar/${MYSQL_VER}.jar/g' install.properties
+sed -i 's/db_root_user=root/db_root_user=${DB_ROOT_USR}/g' install.properties 
 sed -i 's/db_root_password=/db_root_password=${DB_ROOT_PWD}/g' install.properties  
 sed -i 's/db_password=/db_password=${DB_RANGER_PWD}/g' install.properties 
 if [[ "${DB_PORT}" -eq "3306" ]]; then
