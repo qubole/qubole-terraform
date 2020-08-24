@@ -126,13 +126,7 @@ resource "aws_security_group" "ec2_sg" {
     from_port   = var.ssh_port
     to_port     = var.ssh_port
     protocol    = "tcp"
-    cidr_blocks = var.ssh_access
-  }
-  ingress {
-    from_port   = var.ssh_port
-    to_port     = var.ssh_port
-    protocol    = "tcp"
-    cidr_blocks = [data.aws_vpc.selected.cidr_block]
+    cidr_blocks = [var.ssh_access, data.aws_vpc.selected.cidr_block]
   }
   # Allow all outbound traffic.
   egress {

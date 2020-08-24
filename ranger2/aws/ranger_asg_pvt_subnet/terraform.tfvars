@@ -14,7 +14,7 @@ private_subnets = ["subnet-xxxx", "subnet-xxxx"]
 access_from_ips = ["99.xxxx/32"]
 
 #SSH Access
-ssh_access =["99.xxxx/32"]
+ssh_access = "99.xxxx/32"
 
 #RDS properties
 rds_port = 3306
