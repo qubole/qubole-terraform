@@ -1,6 +1,7 @@
 Pre-requisites: Terraform 0.12, Python and aws-cli, Private Key to ssh.
 
 Terraform script to build infrastructure for RangerAdmin-2 with Autoscaling Groups in Private Subnet.
+Private Key should placed in the same directory as tf scripts.
 It also creates Ranger Hive Service, Default qbol_user and qubole_health_check policy.
 
 # Following resources will be provisioned.
