@@ -1,7 +1,6 @@
-access_key = "xxxxx"  
-secret_key = "xxxxx"
-
-aws_session_token = "xxxxx"
+access_key = "xxxx"
+secret_key = "xxxx"
+aws_session_token = ""
 
 region = "us-east-1"
 
@@ -13,7 +12,7 @@ local_ips = ["99.0.0.0/32"]
 
 #Security Group Names
 rds_sg_name = "ps-tf-ranger-rds-sg"
-ranger_solr_sg_name = "ps-tf-ranger-solr-sg"
+ranger_solr_sg_name = "ps-tf-ranger-solr-ec2-sg"
 ranger_alb_sg_name = "ps-tf-ranger-alb-sg"
 solr_alb_sg_name = "ps-tf-solr-alb-sg"
 
@@ -31,11 +30,18 @@ ranger_inst_cnt = 2
 solr_inst_cnt = 1
 ranger_admin_name = "ps-tf-ranger-admin"
 ranger_solr_name = "ps-tf-ranger-solr"
-ranger_alb_name = "ps-tf-ranger-alb" 
-ranger_alb_tg_name = "ps-tf-ranger-alb-tg"
 
-solr_alb_name = "ps-tf-solr-alb"
-solr_alb_tg_name = "ps-tf-solr-alb-tg"
+ranger_alb_name_pub = "ps-tf-ranger-alb-pub"
+ranger_alb_tg_name_pub = "ps-tf-ranger-alb-tg-pub"
+
+ranger_alb_name_int = "ps-tf-ranger-alb-int"
+ranger_alb_tg_name_int = "ps-tf-ranger-alb-tg-int"
+
+solr_alb_name_pub = "ps-tf-solr-alb-pub"
+solr_alb_tg_name_pub = "ps-tf-solr-alb-tg-pub"
+
+solr_alb_name_int = "ps-tf-solr-alb-int"
+solr_alb_tg_name_int = "ps-tf-solr-alb-tg-int"
 
 solr_lt_name = "ps-tf-solr-lt"
 solr_asg_name = "ps-tf-solr-asg"
@@ -49,9 +55,9 @@ db_engine = "mysql"
 db_engine_version = "5.7.25"
 db_name = "ranger"
 db_user = "root"
-db_pwd = "password"
+db_pwd = "xxxx"
 db_ranger_user = "rangeradmin"
-db_ranger_pwd = "password"
+db_ranger_pwd = "xxxx"
 
 db_subnet_group_name = "ps-tf-db-subnet"
 db_allocated_storage = 20
@@ -75,7 +81,7 @@ ranger_alb_port = 80
 ranger_port = 6080
 solr_alb_port = 80
 solr_port = 6083
-rds_port = 53306
+rds_port = 3306
 ssh_port = 22
 
 #cookie duration in seconds

@@ -17,6 +17,9 @@ variable "access_from_ips" {
   type = list(string)
 }
 
+#SSH Access
+variable "ssh_access" {}
+
 #RDS properties
 variable "rds_port" {}
 variable "db_user" {}
@@ -48,8 +51,10 @@ variable "ranger_ami_inst_type" {}
 variable "ranger_inst_type" {}
 variable "ranger_alb_sg_name" {}
 variable "ranger_alb_sg_desc" {}
-variable "ranger_alb_name" {}
-variable "ranger_alb_tg_name" {}
+variable "ranger_alb_name_pub" {}
+variable "ranger_alb_tg_name_pub" {}
+variable "ranger_alb_name_int" {}
+variable "ranger_alb_tg_name_int" {}
 variable "ranger_lt_name" {}
 variable "ranger_asg_name" {}
 variable "ranger_dev_name" {}
@@ -66,8 +71,10 @@ variable "solr_ami_inst_type" {}
 variable "solr_inst_type" {}
 variable "solr_alb_sg_name" {}
 variable "solr_alb_sg_desc" {}
-variable "solr_alb_name" {}
-variable "solr_alb_tg_name" {}
+variable "solr_alb_name_pub" {}
+variable "solr_alb_tg_name_pub" {}
+variable "solr_alb_name_int" {}
+variable "solr_alb_tg_name_int" {}
 variable "solr_lt_name" {}
 variable "solr_asg_name" {}
 variable "solr_mem" {}

@@ -5,4 +5,4 @@
 # by changing RangerDNS, SolrDNS and ports as configured
 
 source /usr/lib/qubole/bootstrap-functions/hive/ranger-client.sh
-install_ranger -h RangerDNS -p 80 -S SolrDNS -P 80
+install_ranger -h int-RangerDNS -p 80 -S int-SolrDNS -P 80 -r hiveservicename
