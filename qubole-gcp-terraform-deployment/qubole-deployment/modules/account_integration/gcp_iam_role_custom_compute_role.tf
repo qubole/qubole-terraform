@@ -18,17 +18,20 @@ resource "google_project_iam_custom_role" "qubole_custom_compute_role" {
   description = "Custom compute role for Qubole to orchestrate VMs"
   permissions = [
     "compute.addresses.use",
+    "compute.addresses.useInternal",
     "compute.disks.create",
     "compute.disks.delete",
     "compute.disks.get",
     "compute.disks.list",
     "compute.disks.setLabels",
     "compute.disks.use",
+    "compute.diskTypes.list",
     "compute.firewalls.create",
     "compute.firewalls.delete",
     "compute.firewalls.get",
     "compute.firewalls.list",
     "compute.firewalls.update",
+    "compute.globalOperations.get",
     "compute.instances.attachDisk",
     "compute.instances.create",
     "compute.instances.delete",
@@ -45,13 +48,13 @@ resource "google_project_iam_custom_role" "qubole_custom_compute_role" {
     "compute.instances.stop",
     "compute.instances.suspend",
     "compute.instances.use",
+    "compute.networks.list",
     "compute.networks.updatePolicy",
     "compute.networks.use",
     "compute.networks.useExternalIp",
+    "compute.regions.get",
+    "compute.subnetworks.list",
     "compute.subnetworks.use",
     "compute.subnetworks.useExternalIp",
-    "compute.regions.get",
-    "compute.networks.list",
-    "compute.subnetworks.list",
-    "compute.diskTypes.list"]
+    "compute.zoneOperations.get"]
 }
