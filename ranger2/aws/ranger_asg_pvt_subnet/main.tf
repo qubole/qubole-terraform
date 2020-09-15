@@ -32,16 +32,16 @@ data "template_file" "solr_base_ami_tmpl" {
 #------MySQL Ranger RDS---------
 #Create DB subnet groups
 resource "aws_db_subnet_group" "rds_db_subnet_grp" {
-  name       = var.db_subnet_group_name
+  name       = "${var.prefix_name}${var.db_subnet_group_name}"
   subnet_ids = var.private_subnets
 
   tags = {
-    Name = var.db_subnet_group_name
+    Name = "${var.prefix_name}${var.db_subnet_group_name}"
   }
 }
 #Configure security group for RDS
 resource "aws_security_group" "rds_sg" {
-  name        = var.rds_sg_name
+  name        = "${var.prefix_name}${var.rds_sg_name}"
   description = var.rds_sg_desc
   vpc_id      = var.vpc_id
 
@@ -61,13 +61,13 @@ resource "aws_security_group" "rds_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = var.rds_sg_name
+    Name = "${var.prefix_name}${var.rds_sg_name}"
   }
 }
 
 #Configure MYSQL RDS instance
 resource "aws_db_instance" "ranger_mysql" {
-  identifier                = var.db_host_name
+  identifier                = "${var.prefix_name}${var.db_host_name}"
   engine                    = var.db_engine
   engine_version            = var.db_engine_version
   instance_class            = var.db_instance_type
@@ -76,7 +76,7 @@ resource "aws_db_instance" "ranger_mysql" {
   username                  = var.db_user
   password                  = var.db_pwd
   port                      = var.rds_port
-  db_subnet_group_name      = var.db_subnet_group_name
+  db_subnet_group_name      = aws_db_subnet_group.rds_db_subnet_grp.name
   vpc_security_group_ids    = [aws_security_group.rds_sg.id]
   skip_final_snapshot       = true
   final_snapshot_identifier = "Ignore"
@@ -99,12 +99,12 @@ output "ranger_rds_address"{
 #------Ranger and Solr Instance Security Groups-----
 #Configure Security Group for EC2
 resource "aws_security_group" "ec2_sg" {
-  name        = var.ranger_solr_sg_name
+  name        = "${var.prefix_name}${var.ranger_solr_sg_name}"
   description = var.ranger_solr_sg_desc
   vpc_id      = var.vpc_id
 
   tags = {
-    Name = var.ranger_solr_sg_name
+    Name = "${var.prefix_name}${var.ranger_solr_sg_name}"
   }
 
   #Allow ranger admin
@@ -148,7 +148,7 @@ resource "aws_instance" "tf_solr_base_inst" {
   subnet_id = var.public_subnets[0]
   security_groups = [aws_security_group.ec2_sg.id]
   tags = { 
-    Name = var.solr_base_inst_name
+    Name = "${var.prefix_name}${var.solr_base_inst_name}"
   }
   user_data = data.template_file.solr_base_ami_tmpl.rendered
 
@@ -157,7 +157,7 @@ resource "aws_instance" "tf_solr_base_inst" {
       type        = "ssh"
       user        = "ec2-user"
       host        = aws_instance.tf_solr_base_inst.public_dns
-      private_key = file("${path.module}/${var.key_name}.pem")
+      private_key = file("${var.key_path}/${var.key_name}.pem")
     }
     script = "setup_file_chk.sh"
   }
@@ -168,10 +168,10 @@ output "solr_base_inst_id" {
 
 #Create SOLR AMI 
 resource "aws_ami_from_instance" "tf_solr_ami" {
-  name               = var.solr_ami_name
+  name               = "${var.prefix_name}${var.solr_ami_name}"
   source_instance_id = aws_instance.tf_solr_base_inst.id
   tags = { 
-    Name = var.solr_ami_name
+    Name = "${var.prefix_name}${var.solr_ami_name}"
   }
 }
 output "solr_ami_id" {
@@ -181,12 +181,12 @@ output "solr_ami_id" {
 ###---- Solr Load Balancer -----
 ### Configure Security Group for Solr Load Balancer
 resource "aws_security_group" "solr_alb_sg" {
-  name        = var.solr_alb_sg_name
+  name        = "${var.prefix_name}${var.solr_alb_sg_name}"
   description = var.solr_alb_sg_desc
   vpc_id      = var.vpc_id
 
   tags = {
-    Name = var.solr_alb_sg_name
+    Name = "${var.prefix_name}${var.solr_alb_sg_name}"
   }
 
   #Allow Ranger traffic
@@ -215,7 +215,7 @@ resource "aws_security_group" "solr_alb_sg" {
 
 #Configure target group for Solr Load Balancer Public
 resource "aws_lb_target_group" "solr_alb_tg_pub" {
-  name                 = var.solr_alb_tg_name_pub
+  name                 = "${var.prefix_name}${var.solr_alb_tg_name_pub}"
   port                 = var.solr_port
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
@@ -235,11 +235,15 @@ resource "aws_lb_target_group" "solr_alb_tg_pub" {
     port                = var.solr_port
     matcher             = "200,302"
   }
+
+  tags = {
+    Name = "${var.prefix_name}${var.solr_alb_tg_name_pub}"
+  }
 }
 
 #Configure Solr Load Balancer Public
 resource "aws_lb" "solr_alb_pub" {
-  name                       = var.solr_alb_name_pub
+  name                       = "${var.prefix_name}${var.solr_alb_name_pub}"
   internal                   = false
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.solr_alb_sg.id]
@@ -247,7 +251,7 @@ resource "aws_lb" "solr_alb_pub" {
   enable_deletion_protection = false
 
   tags = {
-    Name = var.solr_alb_name_pub
+    Name = "${var.prefix_name}${var.solr_alb_name_pub}"
   }
 }
 
@@ -269,7 +273,7 @@ output "solr_alb_name_pub"{
 
 #Configure target group for Solr Load Balancer Internal
 resource "aws_lb_target_group" "solr_alb_tg_int" {
-  name                 = var.solr_alb_tg_name_int
+  name                 = "${var.prefix_name}${var.solr_alb_tg_name_int}"
   port                 = var.solr_port
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
@@ -289,11 +293,15 @@ resource "aws_lb_target_group" "solr_alb_tg_int" {
     port                = var.solr_port
     matcher             = "200,302"
   }
+
+  tags = {
+    Name = "${var.prefix_name}${var.solr_alb_tg_name_int}"
+  }
 }
 
 #Configure Solr Load Balancer Internal
 resource "aws_lb" "solr_alb_int" {
-  name                       = var.solr_alb_name_int
+  name                       = "${var.prefix_name}${var.solr_alb_name_int}"
   internal                   = true
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.solr_alb_sg.id]
@@ -301,7 +309,7 @@ resource "aws_lb" "solr_alb_int" {
   enable_deletion_protection = false
 
   tags = {
-    Name = var.solr_alb_name_int
+    Name = "${var.prefix_name}${var.solr_alb_name_int}"
   }
 }
 
@@ -323,7 +331,7 @@ output "solr_alb_name_int"{
 
 #Create Solr Launch Template
 resource "aws_launch_template" "tf_solr_lt" {
-  name          = var.solr_lt_name
+  name          = "${var.prefix_name}${var.solr_lt_name}"
   image_id      = aws_ami_from_instance.tf_solr_ami.id
   instance_type = var.solr_inst_type
   key_name      = var.key_name
@@ -344,7 +352,7 @@ resource "aws_launch_template" "tf_solr_lt" {
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name = var.solr_inst_name
+      Name = "${var.prefix_name}${var.solr_inst_name}"
     }
   }
   depends_on = [aws_ami_from_instance.tf_solr_ami]
@@ -353,7 +361,7 @@ resource "aws_launch_template" "tf_solr_lt" {
 }
 
 resource "aws_autoscaling_group" "tf_solr_asg" {
-    name                      = var.solr_asg_name
+    name                      = "${var.prefix_name}${var.solr_asg_name}"
     min_size                  = var.solr_inst_cnt
     max_size                  = var.solr_inst_cnt
     desired_capacity          = var.solr_inst_cnt
@@ -370,7 +378,7 @@ resource "aws_autoscaling_group" "tf_solr_asg" {
     }
     tag {
       key = "Name"
-      value = var.solr_inst_name
+      value = "${var.prefix_name}${var.solr_inst_name}"
       propagate_at_launch = true
     }
 }
@@ -402,12 +410,12 @@ data "template_file" "ranger_base_ami_tmpl" {
 ### Configure Security Group for Load Balancer
 
 resource "aws_security_group" "ranger_alb_sg" {
-  name        = var.ranger_alb_sg_name
+  name        = "${var.prefix_name}${var.ranger_alb_sg_name}"
   description = var.ranger_alb_sg_desc
   vpc_id      = var.vpc_id
 
   tags = {
-    Name = var.ranger_alb_sg_name
+    Name = "${var.prefix_name}${var.ranger_alb_sg_name}"
   }
 
   #Allow Ranger traffic
@@ -436,7 +444,7 @@ resource "aws_security_group" "ranger_alb_sg" {
 
 #Configure target group for Load Balancer Public
 resource "aws_lb_target_group" "ranger_alb_tg_pub" {
-  name                 = var.ranger_alb_tg_name_pub
+  name                 = "${var.prefix_name}${var.ranger_alb_tg_name_pub}"
   port                 = var.ranger_port
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
@@ -455,11 +463,15 @@ resource "aws_lb_target_group" "ranger_alb_tg_pub" {
     path                = "/login.jsp"    
     port                = var.ranger_port
   }
+
+  tags = {
+    Name = "${var.prefix_name}${var.ranger_alb_tg_name_pub}"
+  }
 }
 
 #Configure Load Balancer Public
 resource "aws_lb" "ranger_alb_pub" {
-  name                       = var.ranger_alb_name_pub
+  name                       = "${var.prefix_name}${var.ranger_alb_name_pub}"
   internal                   = false
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.ranger_alb_sg.id]
@@ -467,7 +479,7 @@ resource "aws_lb" "ranger_alb_pub" {
   enable_deletion_protection = false
 
   tags = {
-    Name = var.ranger_alb_name_pub
+    Name = "${var.prefix_name}${var.ranger_alb_name_pub}"
   }
 }
 
@@ -489,7 +501,7 @@ output "ranger_alb_name_pub"{
 
 #Configure target group for Load Balancer Internal
 resource "aws_lb_target_group" "ranger_alb_tg_int" {
-  name                 = var.ranger_alb_tg_name_int
+  name                 = "${var.prefix_name}${var.ranger_alb_tg_name_int}"
   port                 = var.ranger_port
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
@@ -508,11 +520,15 @@ resource "aws_lb_target_group" "ranger_alb_tg_int" {
     path                = "/login.jsp"
     port                = var.ranger_port
   }
+
+  tags = {
+    Name = "${var.prefix_name}${var.ranger_alb_tg_name_int}"
+  }
 }
 
 #Configure Load Balancer Internal
 resource "aws_lb" "ranger_alb_int" {
-  name                       = var.ranger_alb_name_int
+  name                       = "${var.prefix_name}${var.ranger_alb_name_int}"
   internal                   = true
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.ranger_alb_sg.id]
@@ -520,7 +536,7 @@ resource "aws_lb" "ranger_alb_int" {
   enable_deletion_protection = false
 
   tags = {
-    Name = var.ranger_alb_name_int
+    Name = "${var.prefix_name}${var.ranger_alb_name_int}"
   }
 }
 
@@ -550,7 +566,7 @@ resource "aws_instance" "tf_ranger_base_inst" {
   security_groups             = [aws_security_group.ec2_sg.id]
   depends_on                  = [aws_db_instance.ranger_mysql]
   tags = { 
-    Name = var.ranger_base_inst_name
+    Name = "${var.prefix_name}${var.ranger_base_inst_name}"
   }
 
   provisioner "remote-exec" {
@@ -558,7 +574,7 @@ resource "aws_instance" "tf_ranger_base_inst" {
       type        = "ssh"
       user        = "ec2-user"
       host        = aws_instance.tf_ranger_base_inst.public_dns
-      private_key = file("${path.module}/${var.key_name}.pem")
+      private_key = file("${var.key_path}/${var.key_name}.pem")
     }
     script = "setup_file_chk.sh"
   }
@@ -572,10 +588,10 @@ output "ranger_base_inst_id" {
 
 #Create Ranger AMI 
 resource "aws_ami_from_instance" "tf_ranger_ami" {
-  name               = var.ranger_ami_name
+  name               = "${var.prefix_name}${var.ranger_ami_name}"
   source_instance_id = aws_instance.tf_ranger_base_inst.id
   tags = { 
-    Name = var.ranger_ami_name
+    Name = "${var.prefix_name}${var.ranger_ami_name}"
   }
 }
 
@@ -585,7 +601,7 @@ output "ranger_ami_id" {
 
 #Create Ranger Launch Template
 resource "aws_launch_template" "tf_ranger_lt" {
-  name          = var.ranger_lt_name
+  name          = "${var.prefix_name}${var.ranger_lt_name}"
   image_id      = aws_ami_from_instance.tf_ranger_ami.id
   instance_type = var.ranger_inst_type
   key_name      =  var.key_name
@@ -607,7 +623,7 @@ resource "aws_launch_template" "tf_ranger_lt" {
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name = var.ranger_inst_name
+      Name = "${var.prefix_name}${var.ranger_inst_name}"
     }
   }
 
@@ -615,7 +631,7 @@ resource "aws_launch_template" "tf_ranger_lt" {
 }
 
 resource "aws_autoscaling_group" "tf_ranger_asg" {
-    name                      = var.ranger_asg_name
+    name                      = "${var.prefix_name}${var.ranger_asg_name}"
     min_size                  = var.def_inst_cnt
     max_size                  = var.def_inst_cnt
     desired_capacity          = var.def_inst_cnt
@@ -632,7 +648,7 @@ resource "aws_autoscaling_group" "tf_ranger_asg" {
     }
     tag {
       key = "Name"
-      value = var.ranger_inst_name
+      value = "${var.prefix_name}${var.ranger_inst_name}"
       propagate_at_launch = true
     }
 }
