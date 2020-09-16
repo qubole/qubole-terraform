@@ -2,7 +2,7 @@
 # Credentials
 access_key = "xxxx"
 secret_key = "xxxx"
-aws_session_token = "xxxx"
+aws_session_token = ""
 
 # VPC Env
 region = "us-xxx-1"
