@@ -1,12 +1,12 @@
 #### Replace xxxx with values as required. 
 # Credentials
-access_key = ""
-secret_key = ""
-aws_session_token = ""
+access_key = "xxxx"
+secret_key = "xxxx"
+aws_session_token = "xxxx"
 
 # VPC Env
-region = "us-xxxx-1"
-vpc_id = "vpc-xxxx"
+region = "us-xxx-1"
+vpc_id = "xxxx"
 public_subnets = ["subnet-xxxx", "subnet-xxxx"]
 private_subnets = ["subnet-xxxx", "subnet-xxxx"]
 
@@ -22,12 +22,12 @@ prefix_name = "ps-tf-"
 #RDS properties
 rds_port = 3306
 db_user = "root"
-db_pwd = "xxxx"
+db_pwd = "password1"
 db_engine = "mysql"
 db_engine_version = "5.7.25"
 db_name = "ranger"
 db_ranger_user = "rangeradmin"
-db_ranger_pwd = "xxxx"
+db_ranger_pwd = "password1"
 db_host_name = "ranger-db"
 rds_sg_name = "ranger-rds-sg"
 
@@ -88,7 +88,7 @@ solr_audit_ret_days = 90
 # Defaults
 ssh_port = 22
 def_inst_cnt = 1
-baseami = "ami-xxxx"
+baseami = "ami-0c94855ba95c71c99"
 cookie_duration = 3600
 solr_version = "8.6.1"
 ranger_version = "2.0.0"
@@ -101,11 +101,11 @@ ranger_download_url = "https://dist.apache.org/repos/dist/release/ranger"
 
 # Private key without .pem extension
 # This key will be used to ssh into Ranger and Solr Instances
-key_name = "xxxx"
+key_name = "pskey"
 key_path = "/Users/xxxx"
 
 # Ranger Policy Details
 # Default loc without s3 prefix
-def_loc = "xxxx"
-service_name = "xxxx"
-qbol_usr_pwd = "xxxx"
+def_loc = "xxxx-xxxx"
+service_name = "hiveranger"
+qbol_usr_pwd = "password1"
