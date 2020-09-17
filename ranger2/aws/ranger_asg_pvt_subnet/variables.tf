@@ -20,6 +20,9 @@ variable "access_from_ips" {
 #SSH Access
 variable "ssh_access" {}
 
+# Prefix Name
+variable "prefix_name" {}
+
 #RDS properties
 variable "rds_port" {}
 variable "db_user" {}
@@ -99,6 +102,7 @@ variable "ranger_download_url" {}
 # Private key without .pem extension
 # This key will be used to ssh into Ranger and Solr Instances
 variable "key_name" {}
+variable "key_path" {}
 
 # Ranger Policy Details
 # Default loc without s3 prefix
