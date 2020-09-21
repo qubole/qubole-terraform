@@ -5,7 +5,7 @@ sleep 120
 
 loop=1
 while [ ! -f /tmp/setup-done ]; do
-    if [ $loop -gt 20 ]; then
+    if [ $loop -gt 50 ]; then
         exit 1
     else
         echo "$loop: Waiting for setup script to complete"
