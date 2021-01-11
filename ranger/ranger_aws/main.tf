@@ -31,7 +31,8 @@ resource "aws_security_group" "rds_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  tags {
+
+  tags = {
     Name = "${var.rds_sg_name}"
   }
 }
@@ -72,7 +73,7 @@ resource "aws_security_group" "ec2_sg" {
     from_port       = "${var.ranger_port}"
     to_port         = "${var.ranger_port}"
     protocol        = "tcp"
-    cidr_blocks = ["${var.local_ips}"]
+    cidr_blocks     = "${var.local_ips}"
   }
 
   ingress {
@@ -86,7 +87,7 @@ resource "aws_security_group" "ec2_sg" {
     from_port       = "${var.solr_port}"
     to_port         = "${var.solr_port}"
     protocol        = "tcp"
-    cidr_blocks = ["${var.local_ips}"]
+    cidr_blocks     = "${var.local_ips}"
   }
 
   ingress {
@@ -100,7 +101,7 @@ resource "aws_security_group" "ec2_sg" {
     from_port       = "${var.ssh_port}"
     to_port         = "${var.ssh_port}"
     protocol        = "tcp"
-    cidr_blocks = ["${var.local_ips}"]
+    cidr_blocks     = "${var.local_ips}"
   }
 
   # Allow all outbound traffic.
@@ -110,7 +111,7 @@ resource "aws_security_group" "ec2_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  tags {
+  tags = {
     Name = "${var.ranger_admin_sg_name}"
   }
 }
@@ -129,7 +130,7 @@ data "aws_vpc" "selected" {
 data "template_file" "ranger_tmpl" {
   template = "${file("ranger_install.sh.tpl")}"
 
-  vars {
+  vars = {
     db_host = "${aws_db_instance.ranger_mysql.address}"
     db_root_user = "${var.db_user}" 
     db_ranger_user = "${var.db_ranger_user}" 
@@ -145,7 +146,7 @@ data "template_file" "ranger_tmpl" {
 data "template_file" "solr_tmpl" {
   template = "${file("solr_install.sh.tpl")}"
 
-  vars {
+  vars = {
     solr_download_url = "${var.solr_download_url}"
   }
 }
@@ -159,7 +160,7 @@ resource "aws_instance" "tf_ranger_solr" {
   subnet_id = "${var.public_subnets[0]}"
   security_groups = ["${aws_security_group.ec2_sg.id}"] 
   
-  tags { 
+  tags = { 
     Name = "${var.ranger_solr_name}"
   }
 
@@ -177,7 +178,7 @@ resource "aws_instance" "tf_ranger_admin" {
   security_groups = ["${aws_security_group.ec2_sg.id}"] 
   depends_on = ["aws_db_instance.ranger_mysql"]
 
-  tags { 
+  tags = { 
     Name="${format("${var.ranger_admin_name}-%01d",count.index+1)}" 
   }
 
@@ -203,7 +204,7 @@ resource "aws_security_group" "lb_sg" {
     from_port       = "${var.ranger_port}"
     to_port         = "${var.ranger_port}"
     protocol        = "tcp"
-    cidr_blocks = ["${var.local_ips}"]
+    cidr_blocks     = "${var.local_ips}"
   }
 
   # Allow all outbound traffic.
@@ -213,7 +214,7 @@ resource "aws_security_group" "lb_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  tags {
+  tags = {
     Name = "${var.ranger_lb_sg_name}"
   }
 }
@@ -271,6 +272,7 @@ resource "aws_lb_listener" "lb_listener" {
 
 #Instance Attachment
 resource "aws_lb_target_group_attachment" "tg_attachment" {
+  count="${var.instance_count}"
   target_group_arn = "${aws_lb_target_group.ranger_target.arn}"
   target_id        = "${element(aws_instance.tf_ranger_admin.*.id,count.index)}" 
   port             = "${var.ranger_port}"
