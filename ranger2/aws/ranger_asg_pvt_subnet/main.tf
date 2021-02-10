@@ -357,7 +357,7 @@ resource "aws_launch_template" "tf_solr_lt" {
   }
   depends_on = [aws_ami_from_instance.tf_solr_ami]
 
-  user_data = filebase64("${path.module}/ranger_start.sh")
+  user_data = filebase64("${path.module}/solr_start.sh")
 }
 
 resource "aws_autoscaling_group" "tf_solr_asg" {
