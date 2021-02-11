@@ -15,20 +15,6 @@ data "aws_vpc" "selected" {
   id = var.vpc_id
 }
 
-data "template_file" "solr_base_ami_tmpl" {
-  template = file("${path.module}/solr_ami.tpl")
-
-  vars = {
-    JAVA_VER    = var.java_version
-    SOLR_VER    = var.solr_version
-    RANGER_VER  = var.ranger_version
-    SOLR_URL    = var.solr_download_url
-    RANGER_URL  = var.ranger_download_url
-    SOLR_MEM    = var.solr_mem
-    SOLR_AUDIT_RET_DAYS = var.solr_audit_ret_days
-  }
-}
-
 #------MySQL Ranger RDS---------
 #Create DB subnet groups
 resource "aws_db_subnet_group" "rds_db_subnet_grp" {
@@ -137,7 +123,20 @@ resource "aws_security_group" "ec2_sg" {
   }
 }
 
-##### Solr
+##### Solr Setup
+data "template_file" "solr_base_ami_tmpl" {
+  template = file("${path.module}/solr_ami.tpl")
+
+  vars = {
+    JAVA_VER    = var.java_version
+    SOLR_VER    = var.solr_version
+    RANGER_VER  = var.ranger_version
+    SOLR_URL    = var.solr_download_url
+    RANGER_URL  = var.ranger_download_url
+    SOLR_MEM    = var.solr_mem
+    SOLR_AUDIT_RET_DAYS = var.solr_audit_ret_days
+  }
+}
 
 #Configure EC2 instance for solr AMI
 resource "aws_instance" "tf_solr_base_inst" {
@@ -383,6 +382,9 @@ resource "aws_autoscaling_group" "tf_solr_asg" {
     }
 }
 
+### Ranger Setup
+###---- Ranger Load Balancer -----
+### Configure Security Group for Load Balancer
 data "template_file" "ranger_base_ami_tmpl" {
   template = file("${path.module}/ranger_ami.tpl")
 
@@ -392,6 +394,7 @@ data "template_file" "ranger_base_ami_tmpl" {
     MYSQL_PATH      = var.mysql_path
     RANGER_VER      = var.ranger_version
     RANGER_URL      = var.ranger_download_url
+    RANGER_DNS      = aws_lb.ranger_alb_int.dns_name
     DB_HOST         = aws_db_instance.ranger_mysql.address
     DB_PORT         = var.rds_port
     SOLR_DNS        = aws_lb.solr_alb_int.dns_name
@@ -401,13 +404,24 @@ data "template_file" "ranger_base_ami_tmpl" {
     DB_RANGER_PWD   = var.db_ranger_pwd
     DB_ROOT_PWD     = var.db_pwd
     RANGER_ADM_PATH = var.ranger_admin_path
-  }
-  depends_on = [aws_lb.solr_alb_int]
-}
 
-### Ranger Setup
-###---- Ranger Load Balancer -----
-### Configure Security Group for Load Balancer
+    LDAP_SYNC_INTERVAL          = var.sync_interval
+    LDAP_URL                    = var.sync_ldap_url
+    SSL_ENABLED                 = var.ssl_enabled
+    LDAP_BIND_DN                = var.sync_ldap_bind_dn
+    LDAP_BIND_PASSWORD          = var.sync_ldap_bind_password
+    LDAP_SEARCH_BASE            = var.sync_ldap_search_base
+    LDAP_USER_SEARCH_BASE       = var.sync_ldap_user_search_base
+    LDAP_USER_NAME_ATTRIBUTE    = var.sync_ldap_user_name_attribute
+    GROUP_SEARCH_ENABLED        = var.sync_group_search_enabled
+    GROUP_USER_MAP_SYNC_ENABLED = var.sync_group_user_map_sync_enabled
+    GROUP_SEARCH_BASE           = var.sync_group_search_base
+    GROUP_OBJECT_CLASS          = var.sync_group_object_class
+    GROUP_NAME_ATTRIBUTE        = var.sync_group_name_attribute
+    GROUP_MEMBER_ATTRIBUTE_NAME = var.sync_group_member_attribute_name
+  }
+  depends_on = [aws_lb.solr_alb_int, aws_lb.ranger_alb_int]
+}
 
 resource "aws_security_group" "ranger_alb_sg" {
   name        = "${var.prefix_name}${var.ranger_alb_sg_name}"
@@ -660,11 +674,15 @@ resource "null_resource" "create-default-ranger-policy" {
     }
 }
 
+##command = <<EOT
+            #aws ec2 terminate-instances --profile ${var.profile_name} --instance-ids ${aws_instance.tf_solr_base_inst.id} ${aws_instance.tf_ranger_base_inst.id}
+            #aws autoscaling update-auto-scaling-group --profile ${var.profile_name} --auto-scaling-group-name ${aws_autoscaling_group.tf_ranger_asg.name} --min-size ${var.ranger_inst_cnt} --max-size ${var.ranger_inst_cnt}
+##    	EOT
 resource "null_resource" "update-ranger-asg" {
     depends_on = [aws_autoscaling_group.tf_ranger_asg]
     provisioner "local-exec" {
       command = <<EOT
-      		export AWS_ACCESS_KEY_ID=${var.access_key}
+            export AWS_ACCESS_KEY_ID=${var.access_key}
 			export AWS_SECRET_ACCESS_KEY=${var.secret_key}
 			export AWS_DEFAULT_REGION=${var.region}
 
@@ -673,7 +691,8 @@ resource "null_resource" "update-ranger-asg" {
 			fi
 			aws ec2 terminate-instances --instance-ids ${aws_instance.tf_solr_base_inst.id} ${aws_instance.tf_ranger_base_inst.id}
             aws autoscaling update-auto-scaling-group --auto-scaling-group-name ${aws_autoscaling_group.tf_ranger_asg.name} --min-size ${var.ranger_inst_cnt} --max-size ${var.ranger_inst_cnt}
-    	EOT
+      EOT
+
     }
     triggers = {
       always_run = timestamp()
