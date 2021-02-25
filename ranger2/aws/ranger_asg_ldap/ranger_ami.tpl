@@ -13,7 +13,7 @@ echo "PS - $USERSYNC_FILE" | tee -a /tmp/ranger_log.txt
 
 #JAVA
 yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-yum install -y ${JAVA_VER}-openjdk-devel mysql bc nc wget xmlstarlet
+yum install -y ${JAVA_VER}-openjdk-devel mysql bc nc wget xmlstarlet gcc
 echo "export JAVA_HOME=/usr/lib/jvm/${JAVA_VER}" | tee /etc/profile.d/java.sh
 echo 'Defaults env_keep += "JAVA_HOME" ' | tee -a /etc/sudoers
 source /etc/profile.d/java.sh
@@ -55,6 +55,19 @@ if [[ "${SOLR_ALB_PORT}" -eq "80" ]]; then
 else
 	sed -i "s~audit_solr_urls=~audit_solr_urls=http://${SOLR_DNS}:${SOLR_ALB_PORT}/solr/ranger_audits~g" install.properties
 fi
+
+## LDAP Authentication
+sed -i "s/authentication_method=NONE/authentication_method=${AUTH_METHOD}/g" install.properties
+sed -i "s~xa_ldap_url=~xa_ldap_url=${LDAP_URL}~g" install.properties
+sed -i "s/xa_ldap_userDNpattern=/xa_ldap_userDNpattern=${LDAP_USER_DN_PATTERN}/g" install.properties
+sed -i "s/xa_ldap_groupSearchBase=/xa_ldap_groupSearchBase=${GROUP_SEARCH_BASE}/g" install.properties
+sed -i "s/xa_ldap_groupSearchFilter=/xa_ldap_groupSearchFilter=${LDAP_GROUP_SEARCH_FILTER}/g" install.properties
+sed -i "s/xa_ldap_groupRoleAttribute=/xa_ldap_groupRoleAttribute=${GROUP_NAME_ATTRIBUTE}/g" install.properties
+sed -i "s/xa_ldap_base_dn=/xa_ldap_base_dn=${LDAP_SEARCH_BASE}/g" install.properties
+sed -i "s/xa_ldap_bind_dn=/xa_ldap_bind_dn=${LDAP_BIND_DN}/g" install.properties
+sed -i "s/xa_ldap_bind_password=/xa_ldap_bind_password=${LDAP_BIND_PASSWORD}/g" install.properties
+sed -i "s/xa_ldap_referral=/xa_ldap_referral=${LDAP_REFERRAL}/g" install.properties
+sed -i "s/xa_ldap_userSearchFilter=/xa_ldap_userSearchFilter=${LDAP_USER_SEARCH_FILTER}/g" install.properties
 
 sh setup.sh | tee /tmp/ranger_setup_log.txt
 
