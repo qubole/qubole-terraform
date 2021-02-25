@@ -62,6 +62,14 @@ ranger_asg_name = "ranger-asg"
 ranger_dev_name = "/dev/xvda"
 ranger_volume_size = 10
 
+## LDAP Authentication
+#LDAP|ACTIVE_DIRECTORY|UNIX|NONE
+auth_method = "LDAP"
+ldap_user_dn_pattern = "cn={0},ou=users,dc=qubole,dc=com"
+ldap_group_search_filter = "(member=cn={0},ou=users,dc=qubole,dc=com)"
+ldap_user_search_filter = "(cn={0})"
+ldap_referral = "ignore"
+
 ## USERSYNC
 sync_interval = 5
 sync_ldap_url = "ldap://xx.xx.xx.xx:389"
@@ -106,7 +114,7 @@ ssh_port = 22
 def_inst_cnt = 1
 baseami = "ami-xxxx"
 cookie_duration = 3600
-solr_version = "8.8.0"
+solr_version = "8.8.1"
 ranger_version = "2.1.0"
 java_version = "java-1.8.0"
 mysql_version = "mysql-connector-java-5.1.48"

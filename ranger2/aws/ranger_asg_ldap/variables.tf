@@ -63,6 +63,13 @@ variable "ranger_asg_name" {}
 variable "ranger_dev_name" {}
 variable "ranger_volume_size" {}
 
+# LDAP Authentication
+variable "auth_method" {}
+variable "ldap_user_dn_pattern" {}
+variable "ldap_group_search_filter" {}
+variable "ldap_user_search_filter" {}
+variable "ldap_referral" {}
+
 #Usersync Properties
 variable "sync_interval" {}
 variable "ssl_enabled" {}

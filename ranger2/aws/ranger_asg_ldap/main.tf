@@ -404,6 +404,12 @@ data "template_file" "ranger_base_ami_tmpl" {
     DB_RANGER_PWD   = var.db_ranger_pwd
     DB_ROOT_PWD     = var.db_pwd
     RANGER_ADM_PATH = var.ranger_admin_path
+    
+    AUTH_METHOD                 = var.auth_method
+    LDAP_USER_DN_PATTERN        = var.ldap_user_dn_pattern
+    LDAP_GROUP_SEARCH_FILTER    = var.ldap_group_search_filter
+    LDAP_USER_SEARCH_FILTER     = var.ldap_user_search_filter
+    LDAP_REFERRAL               = var.ldap_referral
 
     LDAP_SYNC_INTERVAL          = var.sync_interval
     LDAP_URL                    = var.sync_ldap_url
