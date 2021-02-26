@@ -96,7 +96,7 @@ java_version = "java-1.8.0"
 mysql_version = "mysql-connector-java-5.1.48"
 mysql_path = "https://dev.mysql.com/get/Downloads/Connector-J"
 solr_download_url = "http://archive.apache.org/dist/lucene/solr"
-ranger_admin_path = "https://paid-qubole.s3.amazonaws.com/ranger-2.0.0"
+ranger_admin_path = "https://paid-qubole.s3.amazonaws.com"
 ranger_download_url = "https://dist.apache.org/repos/dist/release/ranger"
 
 # Private key without .pem extension

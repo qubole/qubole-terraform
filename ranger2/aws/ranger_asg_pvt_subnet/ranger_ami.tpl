@@ -3,7 +3,8 @@
 set -e
 
 RANGER_ADMIN=ranger-${RANGER_VER}-admin
-RANGER_FILE=${RANGER_ADM_PATH}/$RANGER_ADMIN.tar.gz
+RANGER_FILE=${RANGER_ADM_PATH}/ranger-${RANGER_VER}/$RANGER_ADMIN.tar.gz
+
 
 echo "PS - $RANGER_FILE" | tee -a /tmp/ranger_log.txt
 
