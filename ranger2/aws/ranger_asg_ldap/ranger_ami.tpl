@@ -3,10 +3,10 @@
 set -e
 
 RANGER_ADMIN=ranger-${RANGER_VER}-admin
-RANGER_FILE=${RANGER_ADM_PATH}/${RANGER_VER}/$RANGER_ADMIN.tar.gz
+RANGER_FILE=${RANGER_ADM_PATH}/ranger-${RANGER_VER}/$RANGER_ADMIN.tar.gz
 
 RANGER_USERSYNC=ranger-${RANGER_VER}-usersync
-USERSYNC_FILE=${RANGER_ADM_PATH}/${RANGER_VER}/$RANGER_USERSYNC.tar.gz
+USERSYNC_FILE=${RANGER_ADM_PATH}/ranger-${RANGER_VER}/$RANGER_USERSYNC.tar.gz
 
 echo "PS - $RANGER_FILE" | tee -a /tmp/ranger_log.txt
 echo "PS - $USERSYNC_FILE" | tee -a /tmp/ranger_log.txt
