@@ -14,7 +14,7 @@ variable "db_secondary_zone" {
 }
 
 variable "db_instance_class" {
-  default = "db.t2.micro"
+  default = "db.t4g.micro"
 }
 
 variable "hive_user_name" {
