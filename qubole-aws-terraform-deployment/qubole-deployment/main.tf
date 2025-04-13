@@ -1,6 +1,14 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 2.0"
+    }
+  }
+}
+
 provider "aws" {
-  version = "~> 2.0"
-  region  = "ap-southeast-1"
+  region  = "us-east-1"
 }
 
 resource "random_id" "deployment_suffix" {
@@ -79,15 +87,14 @@ output "hive_metastore_ip" {
 
 output "hive_metastore_user" {
   value = module.hive_metastore.hive-metastore-db-user
+  sensitive = true
 }
 
 output "hive_metastore_password" {
   value = module.hive_metastore.hive-metastore-db-password
+  sensitive = true
 }
 
 output "hive_metastore_db_name" {
   value = module.hive_metastore.hive-metastore-db-name
 }
-
-
-
