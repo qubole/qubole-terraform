@@ -22,7 +22,7 @@ resource "aws_db_instance" "hive_metastore_db_instance" {
   engine = "mysql"
   engine_version = "8.0.41"
   instance_class = var.db_instance_class
-  name = "hive"
+  db_name = "hive"
   username = var.hive_user_name
   password = var.hive_user_password
   parameter_group_name = "default.mysql8.0"
@@ -48,5 +48,5 @@ output "hive-metastore-db-password" {
 }
 
 output "hive-metastore-db-name" {
-  value = aws_db_instance.hive_metastore_db_instance.name
+  value = aws_db_instance.hive_metastore_db_instance.db_name
 }
