@@ -4,7 +4,7 @@ Creates a Elastic IP address for
 */
 
 resource "aws_eip" "qubole_dedicated_vpc_bastion_eip" {
-  vpc      = true
+  domain   = "vpc"
   instance = aws_instance.qubole_bastion_host.id
   tags = {
     Name = "qubole_dedicated_vpc_bastion_eip_${var.deployment_suffix}"
