@@ -86,7 +86,7 @@
     1. Navigate to the qubole-deployment folder
     2. Edit the main.tf to choose which modules to deploy
     3. Add the credentials file with AWS credentials to be used by Terraform at ./aws_credentials (if not, the machine's credentials will be used)
-    4. Update lines 8 and 9 of ./modules/hive_metastore/scripts/shell/init_hive_metastore.sh with the URLs of the hive metastore initialization scripts of your version of hive being used. You cam obatin the URLs and any other information required at the link below this section.
+    4. Update lines 8 and 9 of ./modules/hive_metastore/scripts/shell/init_hive_metastore.sh with the URLs of the hive metastore initialization scripts to your version of hive being used. You cam obatin the URLs and any other information required at the link below this section.
     5. Ensure you review the variables in each module and update as required. Also review attributes in ./modules/hive_metastore/aws_db_instance_hive_metastore.tf and main.tf.
     6. terraform init
     7. terraform plan
