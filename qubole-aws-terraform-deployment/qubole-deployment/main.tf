@@ -9,6 +9,8 @@ terraform {
 
 provider "aws" {
   region  = "us-east-1"
+  shared_credentials_files = ["aws_credentials/terraform_credentials"]
+  profile                 = "default"
 }
 
 resource "random_id" "deployment_suffix" {
