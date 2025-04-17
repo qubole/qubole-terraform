@@ -17,14 +17,15 @@ Creates an RDS Instance to host the Hive Metastore. It
 resource "aws_db_instance" "hive_metastore_db_instance" {
   identifier = "hive-metastore-db-${var.deployment_suffix}"
   allocated_storage = 20
-  storage_type = "gp2"
+  storage_type = "gp3"
+  #iops = 3000  #update the iops to 3000 for storage less than 400GB if error is thrown regarding RDS storage or IOPs
   engine = "mysql"
-  engine_version = "5.7"
+  engine_version = "8.0.41"
   instance_class = var.db_instance_class
-  name = "hive"
+  db_name = "hive"
   username = var.hive_user_name
   password = var.hive_user_password
-  parameter_group_name = "default.mysql5.7"
+  parameter_group_name = "default.mysql8.0"
   apply_immediately = true
   db_subnet_group_name = aws_db_subnet_group.hive_metastore_subnet_group.name
   publicly_accessible = false
@@ -47,5 +48,5 @@ output "hive-metastore-db-password" {
 }
 
 output "hive-metastore-db-name" {
-  value = aws_db_instance.hive_metastore_db_instance.name
+  value = aws_db_instance.hive_metastore_db_instance.db_name
 }
